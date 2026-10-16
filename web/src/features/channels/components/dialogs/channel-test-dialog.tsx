@@ -323,7 +323,10 @@ function ChannelTestDialogContent({
     typeof toast.loading
   > | null>(null)
   const [endpointType, setEndpointType] = useState('auto')
-  const [isStreamTest, setIsStreamTest] = useState(false)
+  // ClinePass models reason before they answer, so the test's 16-token
+  // non-stream probe comes back empty; the test streams for them by default.
+  const defaultStreamTest = /cline\.bot/i.test(currentRow.base_url ?? '')
+  const [isStreamTest, setIsStreamTest] = useState(defaultStreamTest)
   const [searchTerm, setSearchTerm] = useState('')
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({})
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
@@ -390,7 +393,7 @@ function ChannelTestDialogContent({
   const resetState = useCallback(() => {
     batchStopRequestedRef.current = true
     setEndpointType('auto')
-    setIsStreamTest(false)
+    setIsStreamTest(defaultStreamTest)
     setSearchTerm('')
     setTestResults({})
     setRowSelection({})
@@ -403,7 +406,7 @@ function ChannelTestDialogContent({
     setIsDeletingFailed(false)
     setFailureDetails(null)
     setPagination({ pageIndex: 0, pageSize: 30 })
-  }, [])
+  }, [defaultStreamTest])
 
   const streamDisabled = STREAM_INCOMPATIBLE_ENDPOINTS.has(endpointType)
   const effectiveStreamTest = !streamDisabled && isStreamTest

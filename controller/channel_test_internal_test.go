@@ -50,6 +50,38 @@ func TestGetChannelDefaultBaseURLsUsesBuiltInDefaults(t *testing.T) {
 	assert.NotContains(t, response.Data, constant.ChannelTypeTaskPlugin)
 }
 
+func TestShouldUseStreamForAutomaticChannelTest(t *testing.T) {
+	clinePassBaseURL := "https://api.cline.bot/api"
+	otherBaseURL := "https://api.openai.com"
+
+	for _, test := range []struct {
+		name    string
+		channel *model.Channel
+		want    bool
+	}{
+		{
+			name:    "codex reasons before it answers",
+			channel: &model.Channel{Type: constant.ChannelTypeCodex},
+			want:    true,
+		},
+		{
+			name:    "clinepass account reasons before it answers",
+			channel: &model.Channel{Type: constant.ChannelTypeAdvancedCustom, BaseURL: &clinePassBaseURL},
+			want:    true,
+		},
+		{
+			name:    "another upstream keeps the plain probe",
+			channel: &model.Channel{Type: constant.ChannelTypeOpenAI, BaseURL: &otherBaseURL},
+			want:    false,
+		},
+		{name: "no channel", channel: nil, want: false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.want, shouldUseStreamForAutomaticChannelTest(test.channel))
+		})
+	}
+}
+
 func TestValidateChannelProxy(t *testing.T) {
 	tests := []struct {
 		name    string

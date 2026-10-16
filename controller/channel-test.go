@@ -667,7 +667,10 @@ func validateTestResponseBody(respBody []byte, isStream bool) error {
 }
 
 func shouldUseStreamForAutomaticChannelTest(channel *model.Channel) bool {
-	return channel != nil && channel.Type == constant.ChannelTypeCodex
+	// Codex and ClinePass models reason before they answer, so a non-stream probe
+	// with the test's 16-token budget comes back with no content at all. Stream
+	// the test and read its first event instead.
+	return channel != nil && (channel.Type == constant.ChannelTypeCodex || service.IsClinePassChannel(channel))
 }
 
 func detectErrorMessageFromJSONBytes(jsonBytes []byte) string {
