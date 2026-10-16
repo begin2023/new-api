@@ -1,9 +1,11 @@
 package billingexpr_test
 
 import (
+	"fmt"
 	"math"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/pkg/billingexpr"
@@ -939,13 +941,34 @@ func TestTimeFunctions_ValidTimezone(t *testing.T) {
 }
 
 func TestTimeFunctions_AllFunctionsCompile(t *testing.T) {
-	exprStr := `tier("default", p) * (hour("Asia/Shanghai") >= 0 ? 1 : 1) * (minute("UTC") >= 0 ? 1 : 1) * (weekday("UTC") >= 0 ? 1 : 1) * (month("UTC") >= 1 ? 1 : 1) * (day("UTC") >= 1 ? 1 : 1)`
+	exprStr := `tier("default", p) * (hour("Asia/Shanghai") >= 0 ? 1 : 1) * (minute("UTC") >= 0 ? 1 : 1) * (weekday("UTC") >= 0 ? 1 : 1) * (month("UTC") >= 1 ? 1 : 1) * (day("UTC") >= 1 ? 1 : 1) * (year("UTC") >= 2000 ? 1 : 1)`
 	cost, _, err := billingexpr.RunExpr(exprStr, billingexpr.TokenParams{P: 500})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if cost != 500 {
 		t.Errorf("cost = %f, want 500", cost)
+	}
+}
+
+func TestTimeFunctions_YearGatesAHolidayWindow(t *testing.T) {
+	// A window tied to its own year stops applying to other years, which is what
+	// keeps a stale holiday calendar from discounting the wrong dates.
+	thisYear := time.Now().In(time.UTC).Year()
+	for _, test := range []struct {
+		name string
+		year int
+		want float64
+	}{
+		{name: "the year the window names", year: thisYear, want: 50},
+		{name: "another year", year: thisYear + 1, want: 100},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			exprStr := fmt.Sprintf(`tier("default", p) * (year("UTC") == %d && month("UTC") >= 1 && month("UTC") <= 12 ? 0.5 : 1)`, test.year)
+			cost, _, err := billingexpr.RunExpr(exprStr, billingexpr.TokenParams{P: 100})
+			require.NoError(t, err)
+			assert.Equal(t, test.want, cost)
+		})
 	}
 }
 

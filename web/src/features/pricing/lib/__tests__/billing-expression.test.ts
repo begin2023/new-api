@@ -99,6 +99,15 @@ export const peakCondition =
   'weekday("Asia/Shanghai") >= 1 && weekday("Asia/Shanghai") <= 5 && ((hour("Asia/Shanghai") >= 9 && hour("Asia/Shanghai") < 12) || (hour("Asia/Shanghai") >= 14 && hour("Asia/Shanghai") < 18))'
 export const deepSeekExpression = `${peakCondition} ? tier("peak", p * 3 + cr * 0.10 + c * 9) : tier("off_peak", p * 1.5 + cr * 0.05 + c * 4.5)`
 
+// The same peak rule with statutory holidays off-peak. Each window names its
+// year, so it stops applying to the dates of a later year.
+const holidayExpression = `(weekday("Asia/Shanghai") >= 1 && weekday("Asia/Shanghai") <= 5
+  && !(year("Asia/Shanghai") == 2026 && month("Asia/Shanghai") == 1 && day("Asia/Shanghai") >= 1 && day("Asia/Shanghai") <= 3)
+  && !(year("Asia/Shanghai") == 2026 && month("Asia/Shanghai") == 2 && day("Asia/Shanghai") >= 15 && day("Asia/Shanghai") <= 23)
+  && ((hour("Asia/Shanghai") >= 9 && hour("Asia/Shanghai") < 12) || (hour("Asia/Shanghai") >= 14 && hour("Asia/Shanghai") < 18)))
+  ? tier("peak", p * 3 + c * 9)
+  : tier("off_peak", p * 1.5 + c * 4.5)`
+
 afterEach(() => vi.useRealTimers())
 
 describe('local billing expression evaluation', () => {
@@ -270,27 +279,27 @@ describe('local billing expression evaluation', () => {
     [
       '2026-01-31T16:05:00Z',
       'Asia/Shanghai',
-      { hour: 0, minute: 5, weekday: 0, month: 2, day: 1 },
+      { hour: 0, minute: 5, weekday: 0, month: 2, day: 1, year: 2026 },
     ],
     [
       '2026-03-08T06:59:00Z',
       'America/New_York',
-      { hour: 1, minute: 59, weekday: 0, month: 3, day: 8 },
+      { hour: 1, minute: 59, weekday: 0, month: 3, day: 8, year: 2026 },
     ],
     [
       '2026-03-08T07:00:00Z',
       'America/New_York',
-      { hour: 3, minute: 0, weekday: 0, month: 3, day: 8 },
+      { hour: 3, minute: 0, weekday: 0, month: 3, day: 8, year: 2026 },
     ],
     [
       '2026-09-07T01:02:00Z',
       '',
-      { hour: 1, minute: 2, weekday: 1, month: 9, day: 7 },
+      { hour: 1, minute: 2, weekday: 1, month: 9, day: 7, year: 2026 },
     ],
     [
       '2026-09-07T01:02:00Z',
       'Invalid/Zone',
-      { hour: 1, minute: 2, weekday: 1, month: 9, day: 7 },
+      { hour: 1, minute: 2, weekday: 1, month: 9, day: 7, year: 2026 },
     ],
   ])('resolves the full local date at %s in %s', (now, zone, expected) => {
     expect(timeInBillingZone(new Date(now), zone)).toEqual(expected)
@@ -317,6 +326,30 @@ describe('local billing expression evaluation', () => {
       })
     }
   )
+
+  test.each([
+    [
+      '2026-02-17T10:00:00+08:00',
+      'off_peak',
+      'Spring Festival falls on a Tuesday',
+    ],
+    ['2026-02-24T10:00:00+08:00', 'peak', 'the Tuesday after the holiday'],
+    ['2026-01-02T10:00:00+08:00', 'off_peak', 'New Year falls on a Friday'],
+    ['2026-01-05T10:00:00+08:00', 'peak', 'the Monday after the holiday'],
+    [
+      '2027-02-17T10:00:00+08:00',
+      'peak',
+      'the same date a year later is no longer covered',
+    ],
+  ])('selects %s as %s when %s', (now, matchedTier, _reason) => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(now))
+    expect(evalExprLocally(holidayExpression, 1000, 100, extras)).toEqual({
+      cost: matchedTier === 'peak' ? 3900 : 1950,
+      matchedTier,
+      error: null,
+    })
+  })
 })
 
 describe('visual billing document', () => {

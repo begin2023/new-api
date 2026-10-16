@@ -43,6 +43,7 @@ const PROBE_LABELS = {
   weekday: 'Weekday',
   month: 'Month number',
   day: 'Day of month',
+  year: 'Year',
   p: 'Billable input tokens',
   c: 'Billable output tokens',
   len: 'Full input length',

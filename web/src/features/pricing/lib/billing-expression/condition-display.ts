@@ -43,6 +43,7 @@ const DOMAINS: Record<TimeFunction, [number, number]> = {
   weekday: [0, 7],
   month: [1, 13],
   day: [1, 32],
+  year: [2000, 2101],
 }
 
 function timeComparison(node: ExpressionNode): TimeComparison | null {
@@ -120,6 +121,7 @@ function describeTimeRange(
       minute: 'Minute',
       month: 'Month',
       day: 'Day',
+      year: 'Year',
     }
     const values =
       start === end - 1

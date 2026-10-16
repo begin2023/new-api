@@ -172,6 +172,7 @@ OpenAI 已于 2026-05-12 下线 DALL·E 2/3；其校验、默认值和倍率保�
 | `weekday` | `weekday(tz) → int` | Day of week (0=Sunday, 6=Saturday) |
 | `month` | `month(tz) → int` | Month (1-12) |
 | `day` | `day(tz) → int` | Day of month (1-31) |
+| `year` | `year(tz) → int` | Current year (e.g. 2026) |
 | `max` | `max(a, b) → float64` | Math max |
 | `min` | `min(a, b) → float64` | Math min |
 | `abs` | `abs(x) → float64` | Absolute value |
@@ -193,6 +194,19 @@ len <= 32000
 len <= 200000
   ? tier("standard", p * 3 + c * 15 + cr * 0.3 + cc * 3.75 + cc1h * 6)
   : tier("long_context", p * 6 + c * 22.5 + cr * 0.6 + cc * 7.5 + cc1h * 12)
+
+# Time-of-day pricing
+hour("Asia/Shanghai") >= 9 && hour("Asia/Shanghai") < 18
+  ? tier("peak", p * 2 + c * 8)
+  : tier("off_peak", p * 1 + c * 4)
+
+# A holiday window is written from the calendar probes and carries its year:
+# statutory holiday dates move every year, so a window that is not tied to a
+# year would go on applying to the wrong dates afterwards.
+weekday("Asia/Shanghai") >= 1 && weekday("Asia/Shanghai") <= 5
+  && !(year("Asia/Shanghai") == 2026 && month("Asia/Shanghai") == 2 && day("Asia/Shanghai") >= 15 && day("Asia/Shanghai") <= 23)
+  ? tier("peak", p * 2 + c * 8)
+  : tier("off_peak", p * 1 + c * 4)
 
 # Image model (no separate cache/audio pricing — those tokens stay in p/c)
 tier("base", p * 2 + c * 8 + img * 2.5)
@@ -253,7 +267,7 @@ At compile time, the engine instruments ternary factors with this exact shape:
 <request-probe condition> ? <numeric literal> : 1
 ```
 
-The condition must reference at least one request probe (`param`, `header`, `hour`, `minute`, `weekday`, `month`, or `day`). Both branches must be numeric literals and the fallback must equal `1`. Other conditionals, including `(condition ? 2 : 1.5)`, are evaluated normally but are not traced. Integer-only factors use an integer-preserving trace callback, so instrumentation does not change expressions that require an integer operand (for example, `%`). The internal trace callback names are reserved and cannot be used in stored expressions.
+The condition must reference at least one request probe (`param`, `header`, `hour`, `minute`, `weekday`, `month`, `day`, or `year`). Both branches must be numeric literals and the fallback must equal `1`. Other conditionals, including `(condition ? 2 : 1.5)`, are evaluated normally but are not traced. Integer-only factors use an integer-preserving trace callback, so instrumentation does not change expressions that require an integer operand (for example, `%`). The internal trace callback names are reserved and cannot be used in stored expressions.
 
 The compiled cache stores the canonical condition and multiplier for every instrumented node. Each run starts with the full detected rule list marked as unmatched; callbacks mark rules that actually evaluate true. Rules skipped by normal expression short-circuiting remain unmatched. This keeps the expression's numeric result unchanged and avoids reparsing it on each request.
 

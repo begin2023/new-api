@@ -146,6 +146,7 @@ export function timeInBillingZone(
       weekday: 'short',
       month: 'numeric',
       day: 'numeric',
+      year: 'numeric',
     })
     const resolved = formatter.resolvedOptions().timeZone
     if (
@@ -161,6 +162,7 @@ export function timeInBillingZone(
       weekday: now.getUTCDay(),
       month: now.getUTCMonth() + 1,
       day: now.getUTCDate(),
+      year: now.getUTCFullYear(),
     }
   }
   const parts = Object.fromEntries(
@@ -174,6 +176,7 @@ export function timeInBillingZone(
     ),
     month: Number(parts.month),
     day: Number(parts.day),
+    year: Number(parts.year),
   }
 }
 
