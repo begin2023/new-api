@@ -115,7 +115,7 @@ export function Hero(props: HeroProps) {
           </div>
 
           <h1
-            className='landing-animate-fade-up text-[clamp(2.5rem,5.5vw,4rem)] leading-[1.08] font-bold tracking-[-0.03em]'
+            className='landing-animate-fade-up text-[clamp(2rem,5vw,3.5rem)] leading-[1.1] font-bold tracking-[-0.03em] whitespace-nowrap'
             style={{ animationDelay: '60ms' }}
           >
             {t('DeepSeek only,')}
