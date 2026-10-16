@@ -234,7 +234,7 @@ export function Hero(props: HeroProps) {
 
         {/* Right Column: Hero Terminal API Demo */}
         <div
-          className='landing-animate-fade-up flex w-full justify-center opacity-0 lg:col-span-6'
+          className='landing-animate-fade-up flex w-full min-w-0 justify-center opacity-0 lg:col-span-6'
           style={{ animationDelay: '320ms' }}
         >
           <HeroTerminalDemo className='mt-8 lg:mt-0' />
