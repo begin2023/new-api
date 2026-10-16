@@ -97,8 +97,44 @@ func FetchClinePassUsage(ctx context.Context, client *http.Client, key string) *
 		}
 	}
 	usage.ExhaustedUntil = clinePassExhaustedUntil(usage)
+	usage.Limits = clinePassLimits(ctx, client, key)
 	usage.Balance = clinePassBalance(ctx, client, key)
 	return usage
+}
+
+// clinePassCostScale turns Cline's cost fields into USD: both the usage history's
+// costUsd and the plan's inference caps are in hundred-millionths of a dollar.
+// 112615 of them is the $0.00112615 that 182216 prompt tokens (180584 cached)
+// and 566 completion tokens cost at ClinePass's off-peak prices.
+const clinePassCostScale = 1e8
+
+// clinePassLimits is what each window of the account's plan allows. The caps are
+// the plan's entitlements, so an account on another plan is read as it is; a
+// plan that exposes none leaves the limits out instead of inventing numbers.
+func clinePassLimits(ctx context.Context, client *http.Client, key string) *model.ClinePassLimits {
+	var plan struct {
+		Entitlements struct {
+			ClinePass struct {
+				InferenceCapThreshold struct {
+					FiveHour int64 `json:"last5HoursUsageCostUSDPerUser"`
+					Weekly   int64 `json:"last7daysUsageCostUSDPerUser"`
+					Monthly  int64 `json:"last30daysUsageCostUSDPerUser"`
+				} `json:"inferenceCapThreshold"`
+			} `json:"cline_pass"`
+		} `json:"entitlements"`
+	}
+	if err := clinePassGet(ctx, client, key, "/users/me/plan", &plan); err != nil {
+		return nil
+	}
+	cap := plan.Entitlements.ClinePass.InferenceCapThreshold
+	if cap.FiveHour <= 0 && cap.Weekly <= 0 && cap.Monthly <= 0 {
+		return nil
+	}
+	return &model.ClinePassLimits{
+		FiveHourUSD: float64(cap.FiveHour) / clinePassCostScale,
+		WeeklyUSD:   float64(cap.Weekly) / clinePassCostScale,
+		MonthlyUSD:  float64(cap.Monthly) / clinePassCostScale,
+	}
 }
 
 // clinePassExhaustedUntil is the latest reset time among the windows at or over

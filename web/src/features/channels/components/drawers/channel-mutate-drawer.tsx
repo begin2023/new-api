@@ -200,7 +200,8 @@ import {
 import { getChannelTypeConfig } from '../../lib/channel-type-config'
 import {
   CLINE_PASS_BASE_URL,
-  CLINE_PASS_DEFAULT_MODEL,
+  CLINE_PASS_MODEL,
+  CLINE_PASS_UPSTREAM_MODEL,
   clinePassAdvancedConfig,
   isClinePassBaseURL,
   isClinePassPreset,
@@ -871,14 +872,21 @@ export function ChannelMutateDrawer({
         }
         if (isClinePassPreset(target.preset)) {
           // A ClinePass account only needs its key: the base URL, the chat
-          // route and a known model slug are the same for every subscription.
+          // route and the model users call are the same for every subscription.
           form.setValue('base_url', CLINE_PASS_BASE_URL, {
             shouldDirty: true,
             shouldValidate: true,
           })
-          form.setValue('models', CLINE_PASS_DEFAULT_MODEL, {
+          form.setValue('models', CLINE_PASS_MODEL, {
             shouldDirty: true,
           })
+          form.setValue(
+            'model_mapping',
+            mergeModelMappingPairs(form.getValues('model_mapping') || '', [
+              { from: CLINE_PASS_MODEL, to: CLINE_PASS_UPSTREAM_MODEL },
+            ]) || '',
+            { shouldDirty: true }
+          )
           form.setValue(
             'advanced_custom',
             stringifyAdvancedCustomConfig(clinePassAdvancedConfig()),

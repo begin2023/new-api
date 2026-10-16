@@ -7297,6 +7297,7 @@
     "ClinePass usage refreshed": "ClinePass 用量已重新整理",
     "ClinePass per API key": "ClinePass 依 API Key 固定",
     "This will append 3 template rules (Codex CLI, Claude CLI and ClinePass per API key) to the existing rule list.": "這會在現有規則列表後附加 3 條範本規則（Codex CLI、Claude CLI 和 ClinePass 依 API Key 固定）。",
-    "ClinePass subscription account": "ClinePass 訂閱帳號"
+    "ClinePass subscription account": "ClinePass 訂閱帳號",
+    "{{remaining}} / {{total}} left": "剩餘 {{remaining}} / {{total}}"
   }
 }

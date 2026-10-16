@@ -81,11 +81,20 @@ type ClinePassWindow struct {
 	ResetsAt    int64   `json:"resets_at"`    // unix seconds, 0 when Cline did not say
 }
 
+// ClinePassLimits is what a ClinePass subscription allows in each window, in
+// USD, as the plan's entitlements report it.
+type ClinePassLimits struct {
+	FiveHourUSD float64 `json:"five_hour_usd,omitempty"`
+	WeeklyUSD   float64 `json:"weekly_usd,omitempty"`
+	MonthlyUSD  float64 `json:"monthly_usd,omitempty"`
+}
+
 // ClinePassUsage is the last usage snapshot of a ClinePass account. Windows is
 // empty when the account has no ClinePass subscription, and Error keeps why the
 // last read failed so the panel can say so instead of showing stale numbers.
 type ClinePassUsage struct {
 	Windows        []ClinePassWindow `json:"windows"`
+	Limits         *ClinePassLimits  `json:"limits,omitempty"`
 	Balance        string            `json:"balance,omitempty"`
 	ExhaustedUntil int64             `json:"exhausted_until,omitempty"`
 	UpdatedTime    int64             `json:"updated_time"`

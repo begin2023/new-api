@@ -266,6 +266,14 @@ test('the ClinePass provider presets the account address, model and chat route',
     'https://api.cline.bot/api'
   )
   expect(screen.getByText('Routes: 1')).toBeVisible()
+  // The name users call, mapped to the prefixed one Cline serves.
+  const models = screen.getByRole('group', { name: 'Models' })
+  expect(
+    within(models).getByRole('button', { name: 'deepseek-v4.1-flash' })
+  ).toBeVisible()
+  expect(
+    screen.getByRole('tab', { name: /Routing & Mapping/ })
+  ).toHaveAccessibleName(/^Routing & Mapping\s?1 model mapping\(s\)$/)
   // The label follows the address, so it also names a saved account.
   expect(
     screen.getByRole('button', { name: 'Change provider' })

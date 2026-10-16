@@ -20,10 +20,11 @@ import { useTranslation } from 'react-i18next'
 
 import { Progress } from '@/components/ui/progress'
 import { toIntlLocale } from '@/i18n/languages'
+import { formatBillingCurrencyFromUSD } from '@/lib/currency'
 import { formatTimestampRelative } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
-import type { ClinePassUsage } from '../types'
+import type { ClinePassLimits, ClinePassUsage } from '../types'
 
 // The window set ClinePass reports, in the order it is shown, so an account
 // missing one says so instead of hiding the row.
@@ -39,6 +40,16 @@ function usageTone(percent: number): string {
   if (percent >= 100) return 'text-rose-500'
   if (percent >= 80) return 'text-amber-500'
   return 'text-emerald-500'
+}
+
+// The plan's cap for a window, so the remaining amount can be shown in USD.
+function limitOf(
+  limits: ClinePassLimits | null | undefined,
+  type: string
+): number | undefined {
+  if (type === 'five_hour') return limits?.five_hour_usd
+  if (type === 'weekly') return limits?.weekly_usd
+  return limits?.monthly_usd
 }
 
 /**
@@ -74,11 +85,17 @@ export function ClinePassUsageDetails({
           )
         }
         const tone = usageTone(window.percent_used)
+        const limit = limitOf(usage?.limits, known.type)
+        const remaining =
+          limit === undefined
+            ? undefined
+            : (limit * (100 - window.percent_used)) / 100
+        const money = { digitsLarge: 2, digitsSmall: 2, abbreviate: false }
         return (
           <div key={known.type} className='flex flex-col gap-1'>
-            <div className='flex items-center justify-between gap-2 text-xs'>
+            <div className='flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 text-xs'>
               <span className='text-muted-foreground'>{t(known.label)}</span>
-              <span className='flex items-center gap-2'>
+              <span className='flex flex-wrap items-center gap-x-2'>
                 {window.resets_at > 0 && (
                   <span className='text-muted-foreground'>
                     {t('Resets {{time}}', {
@@ -90,7 +107,15 @@ export function ClinePassUsageDetails({
                     })}
                   </span>
                 )}
-                <span className={cn('font-medium', tone)}>
+                {remaining !== undefined && limit !== undefined && (
+                  <span className={cn('font-medium', tone)}>
+                    {t('{{remaining}} / {{total}} left', {
+                      remaining: formatBillingCurrencyFromUSD(remaining, money),
+                      total: formatBillingCurrencyFromUSD(limit, money),
+                    })}
+                  </span>
+                )}
+                <span className='text-muted-foreground'>
                   {percentFormatter.format(window.percent_used)}%
                 </span>
               </span>

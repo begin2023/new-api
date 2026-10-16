@@ -7297,6 +7297,7 @@
     "ClinePass usage refreshed": "Использование ClinePass обновлено",
     "ClinePass per API key": "ClinePass по API-ключу",
     "This will append 3 template rules (Codex CLI, Claude CLI and ClinePass per API key) to the existing rule list.": "К списку правил будут добавлены 3 шаблонных правила (Codex CLI, Claude CLI и ClinePass по API-ключу).",
-    "ClinePass subscription account": "Аккаунт подписки ClinePass"
+    "ClinePass subscription account": "Аккаунт подписки ClinePass",
+    "{{remaining}} / {{total}} left": "Осталось {{remaining}} / {{total}}"
   }
 }

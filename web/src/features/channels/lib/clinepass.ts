@@ -19,7 +19,10 @@ For commercial licensing, please contact support@quantumnous.com
 import type { AdvancedCustomConfig } from '../types'
 
 export const CLINE_PASS_BASE_URL = 'https://api.cline.bot/api'
-export const CLINE_PASS_DEFAULT_MODEL = 'cline-pass/deepseek-v4.1-flash'
+// The name users call. Cline serves the same model under a prefixed name, so a
+// ClinePass channel maps one to the other and never shows the prefix.
+export const CLINE_PASS_MODEL = 'deepseek-v4.1-flash'
+export const CLINE_PASS_UPSTREAM_MODEL = 'cline-pass/deepseek-v4.1-flash'
 /** Marks the provider-picker entry that preconfigures a ClinePass account. */
 export const CLINE_PASS_PRESET = 'clinepass'
 

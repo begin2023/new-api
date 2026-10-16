@@ -49,6 +49,8 @@ func TestFetchClinePassUsageReadsWindowsAndBalance(t *testing.T) {
 			]}}`))
 		case "/users/me":
 			_, _ = w.Write([]byte(`{"success":true,"data":{"clineUserId":"u-1"}}`))
+		case "/users/me/plan":
+			_, _ = w.Write([]byte(`{"success":true,"data":{"plan":{"displayName":"Cline Pass (Monthly)"},"entitlements":{"cline_pass":{"enabled":true,"inferenceCapThreshold":{"last5HoursUsageCostUSDPerUser":1000000000,"last7daysUsageCostUSDPerUser":2500000000,"last30daysUsageCostUSDPerUser":5000000000}}}}}`))
 		case "/users/u-1/balance":
 			_, _ = w.Write([]byte(`{"success":true,"data":{"balance":2500000}}`))
 		default:
@@ -72,6 +74,10 @@ func TestFetchClinePassUsageReadsWindowsAndBalance(t *testing.T) {
 	assert.InDelta(t, 100, usage.Windows[2].PercentUsed, 0.001, "a percentage over 100 is clamped")
 	assert.Zero(t, usage.Windows[2].ResetsAt, "an unparsable reset time stays unknown")
 	assert.Equal(t, "$2.50", usage.Balance)
+	require.NotNil(t, usage.Limits)
+	assert.InDelta(t, 10, usage.Limits.FiveHourUSD, 0.0001)
+	assert.InDelta(t, 25, usage.Limits.WeeklyUSD, 0.0001)
+	assert.InDelta(t, 50, usage.Limits.MonthlyUSD, 0.0001)
 	assert.Equal(t, resetsWeekly.Unix(), usage.ExhaustedUntil)
 	assert.True(t, usage.Exhausted())
 }
@@ -92,6 +98,7 @@ func TestFetchClinePassUsageKeepsTheRefusalOfAnAccountWithoutClinePass(t *testin
 	assert.NotEmpty(t, usage.Error)
 	assert.Contains(t, usage.Error, "404")
 	assert.Empty(t, usage.Windows)
+	assert.Nil(t, usage.Limits, "an unreadable plan leaves the caps out")
 	assert.False(t, usage.Exhausted())
 }
 
@@ -100,6 +107,8 @@ func TestFetchClinePassUsageReadsADataEnvelopeWithoutSuccessFlag(t *testing.T) {
 		switch r.URL.Path {
 		case "/users/me/plan/usage-limits":
 			_, _ = w.Write([]byte(`{"data":{"limits":[{"type":"five_hour","percentUsed":10}]}}`))
+		case "/users/me/plan":
+			_, _ = w.Write([]byte(`{"data":{"entitlements":{"cline_pass":{"enabled":true}}}}`))
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
@@ -116,6 +125,7 @@ func TestFetchClinePassUsageReadsADataEnvelopeWithoutSuccessFlag(t *testing.T) {
 	require.Len(t, usage.Windows, 1)
 	assert.InDelta(t, 10, usage.Windows[0].PercentUsed, 0.001)
 	assert.Equal(t, "", usage.Balance, "a balance that could not be read is left out")
+	assert.Nil(t, usage.Limits, "a plan that exposes no cap gets no invented numbers")
 }
 
 func TestClinePassActionFor(t *testing.T) {

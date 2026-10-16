@@ -7297,6 +7297,7 @@
     "ClinePass usage refreshed": "Đã làm mới mức sử dụng ClinePass",
     "ClinePass per API key": "ClinePass theo từng API Key",
     "This will append 3 template rules (Codex CLI, Claude CLI and ClinePass per API key) to the existing rule list.": "Thao tác này sẽ thêm 3 quy tắc mẫu (Codex CLI, Claude CLI và ClinePass theo từng API Key) vào danh sách quy tắc hiện có.",
-    "ClinePass subscription account": "Tài khoản đăng ký ClinePass"
+    "ClinePass subscription account": "Tài khoản đăng ký ClinePass",
+    "{{remaining}} / {{total}} left": "Còn {{remaining}} / {{total}}"
   }
 }

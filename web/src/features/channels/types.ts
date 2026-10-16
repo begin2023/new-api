@@ -28,9 +28,17 @@ export const clinePassWindowSchema = z.object({
   resets_at: z.number().default(0),
 })
 
+export const clinePassLimitsSchema = z.object({
+  five_hour_usd: z.number().optional(),
+  weekly_usd: z.number().optional(),
+  monthly_usd: z.number().optional(),
+})
+
 export const clinePassUsageSchema = z.object({
   // Cline omits the whole window list when the account has no subscription.
   windows: z.array(clinePassWindowSchema).nullish(),
+  // The plan's caps in USD; absent when the plan exposes none.
+  limits: clinePassLimitsSchema.nullish(),
   balance: z.string().optional(),
   exhausted_until: z.number().optional(),
   updated_time: z.number().default(0),
@@ -38,6 +46,7 @@ export const clinePassUsageSchema = z.object({
 })
 
 export type ClinePassWindow = z.infer<typeof clinePassWindowSchema>
+export type ClinePassLimits = z.infer<typeof clinePassLimitsSchema>
 export type ClinePassUsage = z.infer<typeof clinePassUsageSchema>
 
 export const channelInfoSchema = z.object({
