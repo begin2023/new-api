@@ -111,8 +111,16 @@ export type ThemeCustomization = {
   contentLayout: ContentLayout
 }
 
+/**
+ * The palette defined in `theme.css`, used when no `data-theme-preset`
+ * attribute is set. It is deliberately separate from
+ * `DEFAULT_THEME_CUSTOMIZATION.preset`: the site can default to a named preset
+ * (Ocean Breeze) while `default` still means the baseline palette.
+ */
+export const BASELINE_THEME_PRESET: ThemePreset = 'default'
+
 export const DEFAULT_THEME_CUSTOMIZATION: ThemeCustomization = {
-  preset: 'default',
+  preset: 'ocean-breeze',
   font: 'default',
   radius: 'default',
   scale: 'default',

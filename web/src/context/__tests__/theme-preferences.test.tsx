@@ -114,7 +114,7 @@ afterEach(() => {
 
 describe('theme preference persistence', () => {
   it('starts with defaults when only shared legacy theme cookies exist', () => {
-    document.cookie = 'theme_preset=ocean-breeze; path=/'
+    document.cookie = 'theme_preset=rose-garden; path=/'
     document.cookie = 'vite-ui-theme=dark; path=/'
     document.cookie = 'theme_font=serif; path=/'
     document.cookie = 'theme_radius=xl; path=/'
@@ -125,7 +125,7 @@ describe('theme preference persistence', () => {
 
     expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
     expect(document.documentElement).toHaveClass('light')
-    expect(document.body).not.toHaveAttribute('data-theme-preset')
+    expect(document.body).toHaveAttribute('data-theme-preset', 'ocean-breeze')
     expect(document.body).toHaveAttribute('data-theme-font', 'system')
     expect(document.body).not.toHaveAttribute('data-theme-radius')
     expect(document.body).not.toHaveAttribute('data-theme-scale')
@@ -156,12 +156,12 @@ describe('theme preference persistence', () => {
     expect(document.cookie).toBe('')
   })
 
-  it('keeps a reset after remounting even when the legacy ocean cookie remains', async () => {
+  it('keeps a reset after remounting even when a legacy preset cookie remains', async () => {
     for (const [key, value] of Object.entries(savedPreferences)) {
       localStorage.setItem(key, value)
     }
     localStorage.setItem('unrelated-preference', 'keep')
-    document.cookie = 'theme_preset=ocean-breeze; path=/'
+    document.cookie = 'theme_preset=rose-garden; path=/'
     const user = userEvent.setup()
     const first = render(<ThemeFixture />)
 
@@ -171,7 +171,7 @@ describe('theme preference persistence', () => {
 
     expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
     expect(document.documentElement).toHaveClass('light')
-    expect(document.body).not.toHaveAttribute('data-theme-preset')
+    expect(document.body).toHaveAttribute('data-theme-preset', 'ocean-breeze')
     expect(document.body).toHaveAttribute('data-theme-font', 'system')
     expect(document.body).not.toHaveAttribute('data-theme-radius')
     expect(document.body).not.toHaveAttribute('data-theme-scale')
@@ -180,7 +180,7 @@ describe('theme preference persistence', () => {
       expect(localStorage.getItem(key)).toBeNull()
     }
     expect(localStorage.getItem('unrelated-preference')).toBe('keep')
-    expect(document.cookie).toContain('theme_preset=ocean-breeze')
+    expect(document.cookie).toContain('theme_preset=rose-garden')
   })
 
   it.each(['', 'unknown'])(
@@ -193,7 +193,7 @@ describe('theme preference persistence', () => {
       render(<ThemeFixture />)
 
       expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
-      expect(document.body).not.toHaveAttribute('data-theme-preset')
+      expect(document.body).toHaveAttribute('data-theme-preset', 'ocean-breeze')
       expect(document.body).toHaveAttribute('data-theme-font', 'system')
       expect(document.body).not.toHaveAttribute('data-theme-radius')
       expect(document.body).not.toHaveAttribute('data-theme-scale')
@@ -209,7 +209,7 @@ describe('theme preference persistence', () => {
     render(<ThemeFixture />)
 
     expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
-    expect(document.body).not.toHaveAttribute('data-theme-preset')
+    expect(document.body).toHaveAttribute('data-theme-preset', 'ocean-breeze')
   })
 
   it('still applies and resets preferences when storage writes fail', async () => {
@@ -230,7 +230,7 @@ describe('theme preference persistence', () => {
     await user.click(screen.getByRole('button', { name: 'Reset' }))
 
     expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
-    expect(document.body).not.toHaveAttribute('data-theme-preset')
+    expect(document.body).toHaveAttribute('data-theme-preset', 'ocean-breeze')
   })
 
   it('preserves saved theme preferences during frontend cache initialization', () => {

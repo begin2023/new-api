@@ -26,6 +26,7 @@ import {
 } from 'react'
 
 import {
+  BASELINE_THEME_PRESET,
   CONTENT_LAYOUT_VALUES,
   type ContentLayout,
   DEFAULT_THEME_CUSTOMIZATION,
@@ -130,7 +131,7 @@ export function ThemeCustomizationProvider(props: {
   useEffect(() => {
     applyAttribute(
       'data-theme-preset',
-      preset === DEFAULT_THEME_CUSTOMIZATION.preset ? null : preset
+      preset === BASELINE_THEME_PRESET ? null : preset
     )
   }, [preset])
 
@@ -160,6 +161,8 @@ export function ThemeCustomizationProvider(props: {
 
   const setPreset = useCallback((value: ThemePreset) => {
     _setPreset(value)
+    // The default choice needs no storage entry; the baseline palette is a real
+    // choice, so it is stored to survive the next load.
     writeThemePreference(
       THEME_STORAGE_KEYS.preset,
       value === DEFAULT_THEME_CUSTOMIZATION.preset ? null : value
