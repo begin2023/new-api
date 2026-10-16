@@ -7294,6 +7294,8 @@
     "Updated {{time}}": "{{time}}に更新",
     "Failed to load ClinePass usage": "ClinePass の使用量を読み込めませんでした",
     "Failed to refresh ClinePass usage": "ClinePass の使用量を更新できませんでした",
-    "ClinePass usage refreshed": "ClinePass の使用量を更新しました"
+    "ClinePass usage refreshed": "ClinePass の使用量を更新しました",
+    "ClinePass per API key": "ClinePass を API キーごとに固定",
+    "This will append 3 template rules (Codex CLI, Claude CLI and ClinePass per API key) to the existing rule list.": "既存のルール一覧に 3 つのテンプレートルール（Codex CLI、Claude CLI、ClinePass を API キーごとに固定）を追加します。"
   }
 }

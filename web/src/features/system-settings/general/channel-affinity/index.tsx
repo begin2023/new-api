@@ -284,6 +284,15 @@ export function ChannelAffinitySection(props: Props) {
                     >
                       Claude CLI
                     </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setEditingRule(null)
+                        setRuleTemplateKey('clinePassPerKey')
+                        setRuleEditorOpen(true)
+                      }}
+                    >
+                      {t('ClinePass per API key')}
+                    </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -431,9 +440,9 @@ export function ChannelAffinitySection(props: Props) {
       <ConfirmDialog
         open={fillTemplateDialogOpen}
         onOpenChange={setFillTemplateDialogOpen}
-        title={t('Fill Codex CLI / Claude CLI Templates')}
+        title={t('Fill Templates')}
         desc={t(
-          'This will append 2 template rules (Codex CLI and Claude CLI) to the existing rule list.'
+          'This will append 3 template rules (Codex CLI, Claude CLI and ClinePass per API key) to the existing rule list.'
         )}
         handleConfirm={appendCliTemplates}
       />

@@ -7294,6 +7294,8 @@
     "Updated {{time}}": "Cập nhật {{time}}",
     "Failed to load ClinePass usage": "Không tải được mức sử dụng ClinePass",
     "Failed to refresh ClinePass usage": "Không làm mới được mức sử dụng ClinePass",
-    "ClinePass usage refreshed": "Đã làm mới mức sử dụng ClinePass"
+    "ClinePass usage refreshed": "Đã làm mới mức sử dụng ClinePass",
+    "ClinePass per API key": "ClinePass theo từng API Key",
+    "This will append 3 template rules (Codex CLI, Claude CLI and ClinePass per API key) to the existing rule list.": "Thao tác này sẽ thêm 3 quy tắc mẫu (Codex CLI, Claude CLI và ClinePass theo từng API Key) vào danh sách quy tắc hiện có."
   }
 }

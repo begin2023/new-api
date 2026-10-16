@@ -7294,6 +7294,8 @@
     "Updated {{time}}": "Mis à jour {{time}}",
     "Failed to load ClinePass usage": "Échec du chargement de l'usage ClinePass",
     "Failed to refresh ClinePass usage": "Échec de l'actualisation de l'usage ClinePass",
-    "ClinePass usage refreshed": "Usage ClinePass actualisé"
+    "ClinePass usage refreshed": "Usage ClinePass actualisé",
+    "ClinePass per API key": "ClinePass par clé API",
+    "This will append 3 template rules (Codex CLI, Claude CLI and ClinePass per API key) to the existing rule list.": "Cela ajoutera 3 règles modèles (Codex CLI, Claude CLI et ClinePass par clé API) à la liste de règles existante."
   }
 }
