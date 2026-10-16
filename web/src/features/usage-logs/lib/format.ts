@@ -29,6 +29,7 @@ import { translateServerText } from '@/lib/server-error-message'
 import type { UsageLog } from '../data/schema'
 import type { LogOtherData } from '../types'
 import { buildQuotaAuditOperation } from './quota-audit-operation'
+import type { ResponseModelObservation } from './response-model'
 
 export { normalizeTierLabel }
 
@@ -240,20 +241,22 @@ export function formatModelName(log: UsageLog): {
   name: string
   isMapped: boolean
   actualModel?: string
-  responseModel?: LogOtherData['response_model']
+  responseModel?: ResponseModelObservation
 } {
   const other = parseLogOther(log.other)
+  // The upstream identity is admin-only, so it travels under admin_info.
+  const upstream = other?.admin_info
   const isMapped = !!(
-    other?.is_model_mapped &&
-    other?.upstream_model_name &&
-    other.upstream_model_name !== ''
+    upstream?.is_model_mapped &&
+    upstream?.upstream_model_name &&
+    upstream.upstream_model_name !== ''
   )
 
   return {
     name: log.model_name,
     isMapped,
-    actualModel: isMapped ? other.upstream_model_name : undefined,
-    responseModel: other?.response_model,
+    actualModel: isMapped ? upstream.upstream_model_name : undefined,
+    responseModel: upstream?.response_model,
   }
 }
 

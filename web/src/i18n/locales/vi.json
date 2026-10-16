@@ -7340,6 +7340,10 @@
     "Start calling DeepSeek": "Bắt đầu gọi DeepSeek ngay",
     "at 0.3× the official price": "chỉ 0,3× giá chính thức",
     "Create an account, top up credits, and send your first request in a couple of minutes.": "Tạo tài khoản, nạp credit và gửi yêu cầu đầu tiên trong vài phút.",
-    "Contact the administrator": "Liên hệ quản trị viên"
+    "Contact the administrator": "Liên hệ quản trị viên",
+    "Input Tokens (cache miss)": "Token đầu vào (trượt cache)",
+    "Input Tokens (cache hit)": "Token đầu vào (trúng cache)",
+    "Cache hit": "Trúng cache",
+    "Cache miss": "Trượt cache"
   }
 }

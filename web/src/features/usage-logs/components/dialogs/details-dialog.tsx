@@ -60,6 +60,7 @@ import { DynamicPricingBreakdown } from '@/features/pricing/components/dynamic-p
 import { usePricingData } from '@/features/pricing/hooks/use-pricing-data'
 import { BILLING_PRICING_VARS } from '@/features/pricing/lib/billing-expr'
 import { pluginUsageSchema } from '@/features/pricing/lib/plugin-pricing'
+import { VENDOR_PRICE_REFERENCES } from '@/features/pricing/lib/vendor-price-reference'
 import { PolicyDecisionRecord } from '@/features/system-settings/request-policies/decision-record'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { formatBillingCurrencyFromUSD } from '@/lib/currency'
@@ -389,18 +390,20 @@ function TokenBreakdown(props: { log: UsageLog; other: LogOtherData }) {
 
   const rows: Array<{ label: string; value: string }> = []
 
-  rows.push({ label: t('Input Tokens'), value: promptTokens.toLocaleString() })
+  // Cached input is billed at its own price, so it is reported apart from the
+  // input that missed the cache instead of being folded into it.
+  rows.push({
+    label: t('Input Tokens (cache miss)'),
+    value: Math.max(0, promptTokens - cacheRead).toLocaleString(),
+  })
+  rows.push({
+    label: t('Input Tokens (cache hit)'),
+    value: cacheRead.toLocaleString(),
+  })
   rows.push({
     label: t('Output Tokens'),
     value: completionTokens.toLocaleString(),
   })
-
-  if (cacheRead > 0) {
-    rows.push({
-      label: t('Cache Read'),
-      value: cacheRead.toLocaleString(),
-    })
-  }
 
   if (other.image_cache_tokens !== undefined) {
     rows.push({
@@ -494,6 +497,7 @@ export function DetailsDialog(props: DetailsDialogProps) {
     !isViolation &&
     other?.billing_mode === 'tiered_expr' &&
     !!other?.expr_b64
+  const vendorReference = VENDOR_PRICE_REFERENCES[props.log.model_name || '']
   const pricingData = usePricingData(props.open && isTieredBilling)
   const billingUsageSchema = pluginUsageSchema(
     pricingData.models.find(
@@ -1142,15 +1146,19 @@ export function DetailsDialog(props: DetailsDialogProps) {
           />
         )}
 
-        {other?.response_model && (
+        {/* Upstream model diagnostics stay with operators. */}
+        {props.isAdmin && other?.admin_info?.response_model && (
           <DetailSection label={t('Response Model')}>
-            <ResponseModelDetails observation={other.response_model} />
+            <ResponseModelDetails
+              observation={other.admin_info.response_model}
+            />
           </DetailSection>
         )}
         {/* Model mapping for logs without response observations */}
-        {!other?.response_model &&
-          other?.is_model_mapped &&
-          other?.upstream_model_name && (
+        {props.isAdmin &&
+          !other?.admin_info?.response_model &&
+          other?.admin_info?.is_model_mapped &&
+          other?.admin_info?.upstream_model_name && (
             <DetailSection label={t('Model Mapping')}>
               <DetailRow
                 label={t('Request Model')}
@@ -1159,7 +1167,7 @@ export function DetailsDialog(props: DetailsDialogProps) {
               />
               <DetailRow
                 label={t('Actual Model')}
-                value={other.upstream_model_name}
+                value={other.admin_info.upstream_model_name}
                 mono
               />
             </DetailSection>
@@ -1188,17 +1196,25 @@ export function DetailsDialog(props: DetailsDialogProps) {
                 value={other.image_count}
               />
             )}
-            <DynamicPricingBreakdown
-              compact
-              billingExpr={decodeBillingExprB64(other.expr_b64)}
-              matchedTierLabel={other.matched_tier}
-              matchedBillingUnit={other.billing_unit}
-              matchedFixedPrice={other.fixed_price}
-              requestRules={other.request_rules}
-              hideCacheColumns={!hasAnyCacheTokens(other)}
-              usageSchema={billingUsageSchema}
-              usageFacts={other.usage_facts}
-            />
+            {vendorReference ? (
+              // The vendor states its own hours in one sentence, which reads
+              // better than the generated per-tier conditions.
+              <p className='text-sm font-semibold'>
+                {t(vendorReference.hoursNoteKey)}
+              </p>
+            ) : (
+              <DynamicPricingBreakdown
+                compact
+                billingExpr={decodeBillingExprB64(other.expr_b64)}
+                matchedTierLabel={other.matched_tier}
+                matchedBillingUnit={other.billing_unit}
+                matchedFixedPrice={other.fixed_price}
+                requestRules={other.request_rules}
+                hideCacheColumns={!hasAnyCacheTokens(other)}
+                usageSchema={billingUsageSchema}
+                usageFacts={other.usage_facts}
+              />
+            )}
           </DetailSection>
         )}
 

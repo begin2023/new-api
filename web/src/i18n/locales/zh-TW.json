@@ -7340,6 +7340,10 @@
     "Start calling DeepSeek": "現在就能呼叫 DeepSeek",
     "at 0.3× the official price": "只花官方價格的 0.3 倍",
     "Create an account, top up credits, and send your first request in a couple of minutes.": "註冊帳號、儲值額度，幾分鐘內送出第一個請求。",
-    "Contact the administrator": "聯絡管理員"
+    "Contact the administrator": "聯絡管理員",
+    "Input Tokens (cache miss)": "輸入 Token（快取未命中）",
+    "Input Tokens (cache hit)": "輸入 Token（快取命中）",
+    "Cache hit": "快取命中",
+    "Cache miss": "快取未命中"
   }
 }

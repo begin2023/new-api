@@ -745,20 +745,18 @@ export function useCommonLogsColumns(
                 {promptTokens.toLocaleString()} /{' '}
                 {completionTokens.toLocaleString()}
               </span>
-              {(cacheReadTokens > 0 || cacheWriteTokens > 0) && (
-                <div className='flex items-center gap-1 text-[11px]'>
-                  {cacheReadTokens > 0 && (
-                    <span className='text-muted-foreground/60'>
-                      {t('Cache')}↓ {cacheReadTokens.toLocaleString()}
-                    </span>
-                  )}
-                  {cacheWriteTokens > 0 && (
-                    <span className='text-muted-foreground/60'>
-                      ↑ {cacheWriteTokens.toLocaleString()}
-                    </span>
-                  )}
-                </div>
-              )}
+              <div className='flex items-center gap-1 text-[11px]'>
+                <span className='text-muted-foreground/60'>
+                  {t('Cache hit')} {cacheReadTokens.toLocaleString()} ·{' '}
+                  {t('Cache miss')}{' '}
+                  {Math.max(0, promptTokens - cacheReadTokens).toLocaleString()}
+                </span>
+                {cacheWriteTokens > 0 && (
+                  <span className='text-muted-foreground/60'>
+                    ↑ {cacheWriteTokens.toLocaleString()}
+                  </span>
+                )}
+              </div>
             </div>
           )
         },

@@ -7340,6 +7340,10 @@
     "Start calling DeepSeek": "Вызывайте DeepSeek уже сейчас",
     "at 0.3× the official price": "по 0,3× от официальной цены",
     "Create an account, top up credits, and send your first request in a couple of minutes.": "Создайте аккаунт, пополните баланс и отправьте первый запрос за пару минут.",
-    "Contact the administrator": "Связаться с администратором"
+    "Contact the administrator": "Связаться с администратором",
+    "Input Tokens (cache miss)": "Токены ввода (промах кэша)",
+    "Input Tokens (cache hit)": "Токены ввода (попадание в кэш)",
+    "Cache hit": "Попадание в кэш",
+    "Cache miss": "Промах кэша"
   }
 }

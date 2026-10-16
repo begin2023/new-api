@@ -242,3 +242,43 @@ func TestLogFormattingPreservesLargeIntegerLexemes(t *testing.T) {
 		assert.Equal(t, unprivileged, adminLogs[0].Other)
 	})
 }
+
+// TestUpstreamModelIdentityStaysAdminOnly verifies the diagnostics that name the
+// upstream model stay with operators: a log owner only knows the public model
+// name they requested.
+func TestUpstreamModelIdentityStaysAdminOnly(t *testing.T) {
+	other := NewLogOther()
+	other.SetPublic("model_ratio", 0.5)
+	other.SetAdmin("is_model_mapped", true)
+	other.SetAdmin("upstream_model_name", "cline-pass/deepseek-v4.1-flash")
+	other.SetAdmin("response_model", map[string]any{
+		"requested_model": "deepseek-v4.1-flash",
+		"upstream_model":  "cline-pass/deepseek-v4.1-flash",
+		"returned_model":  "vmc/deepseek-v4p1-flash-contributor-fallbacks",
+	})
+	serialized := other.JSONString()
+
+	t.Run("user", func(t *testing.T) {
+		logs := []*Log{{Other: serialized}}
+		formatUserLogs(logs, 0)
+
+		parsed, err := common.StrToMap(logs[0].Other)
+		require.NoError(t, err)
+		assert.NotContains(t, parsed, "upstream_model_name")
+		assert.NotContains(t, parsed, "response_model")
+		assert.NotContains(t, parsed, "is_model_mapped")
+		assert.Equal(t, 0.5, parsed["model_ratio"])
+	})
+
+	t.Run("admin", func(t *testing.T) {
+		logs := []*Log{{Other: serialized}}
+		FormatAdminLogs(logs)
+
+		parsed, err := common.StrToMap(logs[0].Other)
+		require.NoError(t, err)
+		adminInfo, ok := parsed["admin_info"].(map[string]any)
+		require.True(t, ok)
+		assert.Equal(t, "cline-pass/deepseek-v4.1-flash", adminInfo["upstream_model_name"])
+		assert.Contains(t, adminInfo, "response_model")
+	})
+}

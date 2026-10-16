@@ -64,7 +64,11 @@ function makeLog(other: LogOtherData): UsageLog {
   }
 }
 
-function renderDetails(other: LogOtherData, promptTokens = 0): QueryClient {
+function renderDetails(
+  other: LogOtherData,
+  promptTokens = 0,
+  isAdmin = false
+): QueryClient {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
@@ -80,7 +84,7 @@ function renderDetails(other: LogOtherData, promptTokens = 0): QueryClient {
     <QueryClientProvider client={queryClient}>
       <DetailsDialog
         log={{ ...makeLog(other), prompt_tokens: promptTokens }}
-        isAdmin={false}
+        isAdmin={isAdmin}
         isRoot={false}
         open
         onOpenChange={() => undefined}
@@ -94,18 +98,31 @@ function rowValue(label: string): string | null {
   return screen.getByText(label).nextElementSibling?.textContent ?? null
 }
 
-test('shows the recorded request and response models in log details', () => {
-  const queryClient = renderDetails({
+// The upstream model identity is an operator diagnostic: an administrator sees
+// it, the log owner does not.
+const responseModelOther: LogOtherData = {
+  admin_info: {
     response_model: {
       requested_model: 'requested-model',
       upstream_model: 'mapped-model',
       returned_model: 'unexpected-model',
     },
-  })
+  },
+}
+
+test('shows the recorded request and response models to an administrator', () => {
+  const queryClient = renderDetails(responseModelOther, 0, true)
   expect(screen.getByText('Response model: unexpected-model')).toBeVisible()
   expect(rowValue('Request Model')).toBe('requested-model')
   expect(rowValue('Upstream Model')).toBe('mapped-model')
   expect(screen.getByText('unexpected-model')).toBeVisible()
+  queryClient.clear()
+})
+
+test('hides the upstream model identity from the log owner', () => {
+  const queryClient = renderDetails(responseModelOther)
+  expect(screen.queryByText('Response Model')).not.toBeInTheDocument()
+  expect(screen.queryByText(/unexpected-model/)).not.toBeInTheDocument()
   queryClient.clear()
 })
 
@@ -156,13 +173,11 @@ describe('usage facts billing details', () => {
       '400'
     )
     expect(
-      screen.getByText('Input Tokens').nextElementSibling
-    ).toHaveTextContent('1,000')
+      screen.getByText('Input Tokens (cache miss)').nextElementSibling
+    ).toHaveTextContent('700')
     expect(
-      screen
-        .getAllByText('Cache Read')
-        .some((label) => label.nextElementSibling?.textContent === '300')
-    ).toBe(true)
+      screen.getByText('Input Tokens (cache hit)').nextElementSibling
+    ).toHaveTextContent('300')
   })
 
   beforeAll(() => {

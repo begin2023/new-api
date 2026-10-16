@@ -146,6 +146,17 @@ export interface LogOtherData {
     }
     // Reject / intercept reason (admin only)
     reject_reason?: string
+    // Upstream model identity (admin only). Log owners only know the public
+    // model name they requested.
+    is_model_mapped?: boolean
+    upstream_model_name?: string
+    // Diagnostic only. Whether the names disagree is derived in the UI via
+    // isResponseModelMismatch so old rows follow the current comparison rule.
+    response_model?: {
+      requested_model: string
+      upstream_model: string
+      returned_model: string
+    }
     task_plugin?: TaskPluginInfo
   }
   root_info?: {
@@ -201,15 +212,6 @@ export interface LogOtherData {
   cache_creation_ratio?: number
   cache_creation_ratio_5m?: number
   cache_creation_ratio_1h?: number
-  is_model_mapped?: boolean
-  upstream_model_name?: string
-  // Diagnostic only. Whether the names disagree is derived in the UI via
-  // isResponseModelMismatch so old rows follow the current comparison rule.
-  response_model?: {
-    requested_model: string
-    upstream_model: string
-    returned_model: string
-  }
   audio_ratio?: number
   audio_completion_ratio?: number
   frt?: number

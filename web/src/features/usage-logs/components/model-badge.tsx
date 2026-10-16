@@ -31,14 +31,16 @@ import { getLobeIcon } from '@/lib/lobe-icon'
 import { resolveModelProvider } from '@/lib/model-provider'
 import { cn } from '@/lib/utils'
 
-import { isResponseModelMismatch } from '../lib/response-model'
-import type { LogOtherData } from '../types'
+import {
+  isResponseModelMismatch,
+  type ResponseModelObservation,
+} from '../lib/response-model'
 import { DetailRow } from './dialogs/log-detail-layout'
 
 interface ModelBadgeProps {
   modelName: string
   actualModel?: string
-  responseModel?: LogOtherData['response_model']
+  responseModel?: ResponseModelObservation
   className?: string
   wrapText?: boolean
   onInspect?: () => void
@@ -205,7 +207,7 @@ export function ModelBadge(props: ModelBadgeProps) {
 }
 
 export function ResponseModelDetails(props: {
-  observation: NonNullable<LogOtherData['response_model']>
+  observation: ResponseModelObservation
 }) {
   const { t } = useTranslation()
   const mismatch = isResponseModelMismatch(props.observation)

@@ -64,3 +64,10 @@ export const DEFAULT_DISCOUNT_RATE = 1.0
  * Default minimum topup amount
  */
 export const DEFAULT_MIN_TOPUP = 1
+
+/**
+ * The referral program is withdrawn for now. Its reward card, invite link and
+ * reward transfer stay hidden while this is false; set it back to true to
+ * offer the program again.
+ */
+export const AFFILIATE_PROGRAM_ENABLED = false

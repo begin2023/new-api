@@ -7340,6 +7340,10 @@
     "Start calling DeepSeek": "Appelez DeepSeek dès maintenant",
     "at 0.3× the official price": "à 0,3× le prix officiel",
     "Create an account, top up credits, and send your first request in a couple of minutes.": "Créez un compte, rechargez des crédits et envoyez votre première requête en quelques minutes.",
-    "Contact the administrator": "Contacter l'administrateur"
+    "Contact the administrator": "Contacter l'administrateur",
+    "Input Tokens (cache miss)": "Jetons d’entrée (échec de cache)",
+    "Input Tokens (cache hit)": "Jetons d’entrée (succès de cache)",
+    "Cache hit": "Succès de cache",
+    "Cache miss": "Échec de cache"
   }
 }

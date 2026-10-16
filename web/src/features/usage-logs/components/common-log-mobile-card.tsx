@@ -291,9 +291,15 @@ export function CommonLogMobileCard<TData>(props: {
       {showTokens && (
         <div className='text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 text-xs [overflow-wrap:anywhere]'>
           <span>
-            {t('Input')}{' '}
+            {t('Input Tokens (cache miss)')}{' '}
             <span className='text-foreground tabular-nums'>
-              {log.prompt_tokens.toLocaleString()}
+              {Math.max(0, log.prompt_tokens - cacheRead).toLocaleString()}
+            </span>
+          </span>
+          <span>
+            {t('Input Tokens (cache hit)')}{' '}
+            <span className='text-foreground tabular-nums'>
+              {cacheRead.toLocaleString()}
             </span>
           </span>
           <span>
@@ -302,11 +308,6 @@ export function CommonLogMobileCard<TData>(props: {
               {log.completion_tokens.toLocaleString()}
             </span>
           </span>
-          {cacheRead > 0 && (
-            <span>
-              {t('Cache')} ↓ {cacheRead.toLocaleString()}
-            </span>
-          )}
           {cacheWrite > 0 && (
             <span>
               {t('Cache')} ↑ {cacheWrite.toLocaleString()}
