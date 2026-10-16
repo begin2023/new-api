@@ -78,7 +78,7 @@ const API_DEMOS: ApiDemoConfig[] = [
     endpoint: '/v1/chat/completions',
     headers: ['"Authorization: Bearer sk-••••"'],
     request: [
-      '"model": "your-model",',
+      '"model": "deepseek-v4.1-flash",',
       '"messages": [',
       '  { "role": "user", "content": "..." }',
       ']',
@@ -100,7 +100,7 @@ const API_DEMOS: ApiDemoConfig[] = [
     method: 'POST',
     endpoint: '/v1/responses',
     headers: ['"Authorization: Bearer sk-••••"'],
-    request: ['"model": "your-model",', '"input": "..."'],
+    request: ['"model": "deepseek-v4.1-flash",', '"input": "..."'],
     response: [
       '{',
       '  "output": [{ "type": "output_text", "text": <text> }],',
@@ -119,7 +119,7 @@ const API_DEMOS: ApiDemoConfig[] = [
     endpoint: '/v1/messages',
     headers: ['"x-api-key: sk-••••"', '"anthropic-version: 2023-06-01"'],
     request: [
-      '"model": "your-model",',
+      '"model": "deepseek-v4.1-flash",',
       '"max_tokens": 1024,',
       '"messages": [',
       '  { "role": "user", "content": "..." }',

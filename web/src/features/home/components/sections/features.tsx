@@ -17,14 +17,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import {
-  Zap,
-  Shield,
-  Globe,
+  Boxes,
+  CircleDollarSign,
   Code,
-  Gauge,
-  DollarSign,
-  Users,
-  HeartHandshake,
+  KeyRound,
+  MoonStar,
+  Route,
+  Wallet,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -39,102 +38,102 @@ export function Features(_props: FeaturesProps) {
 
   const features = [
     {
-      id: 'fast',
+      id: 'deepseek',
       num: '01',
-      title: t('Lightning Fast'),
+      title: t('Only DeepSeek'),
       desc: t(
-        'Optimized network architecture ensures millisecond response times'
+        'We serve the DeepSeek model family and nothing else, so a request never lands on a model you did not ask for.'
       ),
       span: 'md:col-span-2',
-      icon: <Zap className='size-4 text-blue-400' />,
+      icon: <Boxes className='size-4 text-blue-500' />,
       visual: (
-        <div className='mt-4 grid grid-cols-3 gap-2'>
-          {['OpenAI', 'Claude', 'Gemini', 'DeepSeek', 'Qwen', 'Llama'].map(
-            (name) => (
-              <div
-                key={name}
-                className='border-border/30 bg-muted/20 text-muted-foreground flex items-center justify-center rounded-lg border px-3 py-2 text-xs transition-colors duration-300 hover:border-blue-500/30 hover:bg-blue-500/5'
-              >
-                {name}
-              </div>
-            )
-          )}
+        <div className='mt-4 flex flex-wrap items-center gap-2'>
+          <span className='rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 font-mono text-xs text-blue-600 dark:text-blue-400'>
+            deepseek-v4.1-flash
+          </span>
+          {['gpt-4o', 'claude-sonnet', 'gemini-2.5-pro'].map((name) => (
+            <span
+              key={name}
+              className='text-muted-foreground/40 rounded-lg border border-dashed px-3 py-1.5 font-mono text-xs line-through'
+            >
+              {name}
+            </span>
+          ))}
         </div>
       ),
     },
     {
-      id: 'secure',
+      id: 'price',
       num: '02',
-      title: t('Secure & Reliable'),
+      title: t('0.3× the official price'),
       desc: t(
-        'Enterprise-grade security with comprehensive permission management'
+        'Input, output and cache reads are billed at 0.3× the price DeepSeek publishes. No subscription, no minimum spend.'
       ),
       span: 'md:col-span-1',
-      icon: <Shield className='size-4 text-emerald-400' />,
+      icon: <Wallet className='size-4 text-sky-500' />,
       visual: (
-        <div className='mt-4 flex items-center justify-center'>
-          <div className='relative'>
-            <div className='flex size-16 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/5'>
-              <Shield
-                className='size-7 text-emerald-500/70'
-                strokeWidth={1.5}
-              />
-            </div>
-            <div className='absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-emerald-500'>
-              <svg
-                className='size-2.5 text-white'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-                strokeWidth={3}
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='m4.5 12.75 6 6 9-13.5'
-                />
-              </svg>
-            </div>
+        <div className='mt-4 space-y-2.5'>
+          <div className='flex items-center gap-3'>
+            <span className='text-muted-foreground w-20 shrink-0 text-xs'>
+              DeepSeek
+            </span>
+            <span className='bg-muted h-2.5 flex-1 overflow-hidden rounded-full'>
+              <span className='bg-foreground/25 block h-full w-full' />
+            </span>
+            <span className='text-muted-foreground w-10 shrink-0 text-right font-mono text-xs'>
+              1×
+            </span>
+          </div>
+          <div className='flex items-center gap-3'>
+            <span className='w-20 shrink-0 text-xs font-medium'>Blue API</span>
+            <span className='bg-muted h-2.5 flex-1 overflow-hidden rounded-full'>
+              <span className='block h-full w-[30%] rounded-full bg-gradient-to-r from-blue-600 to-cyan-400' />
+            </span>
+            <span className='w-10 shrink-0 text-right font-mono text-xs font-semibold text-blue-600 dark:text-blue-400'>
+              0.3×
+            </span>
           </div>
         </div>
       ),
     },
     {
-      id: 'global',
+      id: 'offpeak',
       num: '03',
-      title: t('Global Coverage'),
-      desc: t('Multi-region deployment for stable global access'),
+      title: t('Half price when it is quiet'),
+      desc: t(
+        'Off-peak hours cost half of peak hours, so a job left running overnight costs a quarter of the official price.'
+      ),
       span: 'md:col-span-1',
-      icon: <Globe className='size-4 text-violet-400' />,
+      icon: <MoonStar className='size-4 text-cyan-500' />,
       visual: (
         <div className='mt-4 space-y-2'>
-          {[t('Load Balancing'), t('Rate Limiting'), t('Cost Tracking')].map(
-            (step, i) => (
-              <div key={step} className='flex items-center gap-2'>
-                <div
-                  className={`flex size-6 items-center justify-center rounded-full text-[10px] font-bold ${
-                    i === 1
-                      ? 'border border-blue-500/30 bg-blue-500/20 text-blue-500'
-                      : 'border-border/40 bg-muted text-muted-foreground border'
-                  }`}
-                >
-                  {i + 1}
-                </div>
-                <div className='bg-border/40 h-px flex-1' />
-                <span className='text-muted-foreground text-xs'>{step}</span>
-              </div>
-            )
-          )}
+          {[
+            { label: t('Peak'), width: 'w-full', tone: 'bg-blue-500/70' },
+            { label: t('Off-peak'), width: 'w-1/2', tone: 'bg-cyan-400/70' },
+          ].map((row) => (
+            <div key={row.label} className='flex items-center gap-3'>
+              <span className='text-muted-foreground w-16 shrink-0 text-xs'>
+                {row.label}
+              </span>
+              <span className='bg-muted h-2.5 flex-1 overflow-hidden rounded-full'>
+                <span
+                  className={`block h-full rounded-full ${row.width} ${row.tone}`}
+                />
+              </span>
+            </div>
+          ))}
         </div>
       ),
     },
     {
-      id: 'developer',
+      id: 'api',
       num: '04',
-      title: t('Developer Friendly'),
-      desc: t('Compatible API routes for common AI application workflows'),
+      title: t('Drop-in OpenAI API'),
+      desc: t(
+        'Point any OpenAI-compatible client at our Base URL. No SDK change, no protocol rewrite.'
+      ),
       span: 'md:col-span-2',
-      icon: <Code className='size-4 text-amber-400' />,
+      icon: <Code className='size-4 text-indigo-500' />,
       visual: (
         <div className='mt-4 flex items-center gap-3'>
           <div className='flex -space-x-2'>
@@ -149,7 +148,7 @@ export function Features(_props: FeaturesProps) {
           </div>
           <div className='text-muted-foreground flex items-center gap-1.5 text-xs'>
             <Code className='size-3.5 text-blue-500' />
-            {t('Multi-protocol Compatible')}
+            {t('OpenAI Compatible')}
           </div>
         </div>
       ),
@@ -158,24 +157,30 @@ export function Features(_props: FeaturesProps) {
 
   const additionalFeatures = [
     {
-      icon: <Gauge className='size-5' strokeWidth={1.5} />,
-      title: t('High Performance'),
-      desc: t('Support for high concurrency with automatic load balancing'),
+      icon: <KeyRound className='size-5' strokeWidth={1.5} />,
+      title: t('Per-key quotas'),
+      desc: t(
+        'Every API key carries its own quota and concurrency limit, so one runaway script cannot drain the account.'
+      ),
     },
     {
-      icon: <DollarSign className='size-5' strokeWidth={1.5} />,
+      icon: <Route className='size-5' strokeWidth={1.5} />,
+      title: t('Stable per key'),
+      desc: t(
+        'A key keeps talking to the same upstream account, so replies stay consistent instead of hopping between them.'
+      ),
+    },
+    {
+      icon: <Wallet className='size-5' strokeWidth={1.5} />,
+      title: t('Prepaid credits'),
+      desc: t(
+        'Top up and pay per token. Nothing is charged while you are not calling the API.'
+      ),
+    },
+    {
+      icon: <CircleDollarSign className='size-5' strokeWidth={1.5} />,
       title: t('Transparent Billing'),
       desc: t('Pay-as-you-go with real-time usage monitoring'),
-    },
-    {
-      icon: <Users className='size-5' strokeWidth={1.5} />,
-      title: t('Team Collaboration'),
-      desc: t('Multi-user management with flexible permission allocation'),
-    },
-    {
-      icon: <HeartHandshake className='size-5' strokeWidth={1.5} />,
-      title: t('Open Source'),
-      desc: t('Community driven, self-hosted, and extensible'),
     },
   ]
 
@@ -184,12 +189,12 @@ export function Features(_props: FeaturesProps) {
       <div className='mx-auto max-w-6xl'>
         <AnimateInView className='mb-16 max-w-lg'>
           <p className='text-muted-foreground mb-3 text-xs font-medium tracking-widest uppercase'>
-            {t('Core Features')}
+            {t('Why Blue API')}
           </p>
-          <h2 className='text-2xl leading-tight font-bold tracking-tight md:text-3xl'>
-            {t('Built for developers,')}
+          <h2 className='text-3xl leading-tight font-bold tracking-[-0.02em] md:text-4xl'>
+            {t('One model,')}
             <br />
-            {t('designed for scale')}
+            {t('one honest price')}
           </h2>
         </AnimateInView>
 

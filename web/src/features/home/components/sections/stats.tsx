@@ -98,10 +98,15 @@ export function Stats(_props: StatsProps) {
   const { t } = useTranslation()
 
   const stats: StatItem[] = [
-    { end: 50, suffix: '+', label: t('upstream services integrated') },
-    { end: 100, suffix: '+', label: t('model billing support') },
-    { end: 50, suffix: '+', label: t('compatible API routes') },
-    { end: 10, suffix: '+', label: t('scheduling controls') },
+    {
+      end: 0.3,
+      suffix: '×',
+      decimals: 1,
+      label: t('of the official DeepSeek price'),
+    },
+    { end: 50, suffix: '%', label: t('off again during off-peak hours') },
+    { end: 100, suffix: '%', label: t('OpenAI-compatible API') },
+    { end: 0, suffix: '', label: t('lines of code to change') },
   ]
 
   return (

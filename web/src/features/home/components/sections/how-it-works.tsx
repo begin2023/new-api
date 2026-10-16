@@ -16,37 +16,68 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { Settings, Zap, BarChart3 } from 'lucide-react'
+import { KeyRound, Terminal, UserPlus } from 'lucide-react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AnimateInView } from '@/components/animate-in-view'
+import { CopyButton } from '@/components/copy-button'
+import { useStatus } from '@/hooks/use-status'
+
+const MODEL_ID = 'deepseek-v4.1-flash'
 
 export function HowItWorks() {
   const { t } = useTranslation()
+  const { status } = useStatus()
+
+  const baseUrl = useMemo(() => {
+    const candidate =
+      (status as Record<string, unknown> | null)?.server_address ??
+      (status as Record<string, unknown> | null)?.serverAddress ??
+      (status?.data as Record<string, unknown> | undefined)?.server_address
+    if (typeof candidate === 'string' && candidate.trim()) {
+      return candidate.replace(/\/+$/, '')
+    }
+    return typeof window === 'undefined' ? '' : window.location.origin
+  }, [status])
+
+  const endpoint = `${baseUrl}/v1`
+  const curl = `curl ${endpoint}/chat/completions \\
+  -H "Authorization: Bearer $BLUE_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"model":"${MODEL_ID}","messages":[{"role":"user","content":"Hello!"}]}'`
 
   const steps = [
     {
       num: '1',
-      title: t('Configure'),
+      title: t('Register and top up'),
       desc: t(
-        'Add your API keys, set up channels and configure access permissions'
+        'Create an account and add credits. Billing is per token, so nothing is charged until you call the API.'
       ),
-      icon: <Settings className='size-6' strokeWidth={1.5} />,
+      icon: <UserPlus className='size-6' strokeWidth={1.5} />,
     },
     {
       num: '2',
-      title: t('Connect'),
+      title: t('Create an API key'),
       desc: t(
-        'Connect through OpenAI, Claude, Gemini, and other compatible API routes'
+        'Create a key in the console and copy it. Every key carries its own quota and concurrency limit.'
       ),
-      icon: <Zap className='size-6' strokeWidth={1.5} />,
+      icon: <KeyRound className='size-6' strokeWidth={1.5} />,
     },
     {
       num: '3',
-      title: t('Monitor'),
-      desc: t('Track usage, costs and performance with real-time analytics'),
-      icon: <BarChart3 className='size-6' strokeWidth={1.5} />,
+      title: t('Call the API'),
+      desc: t(
+        'Point your OpenAI-compatible client at the Base URL below and use the model {{model}}.',
+        { model: MODEL_ID }
+      ),
+      icon: <Terminal className='size-6' strokeWidth={1.5} />,
     },
+  ]
+
+  const connection = [
+    { label: t('Base URL'), value: endpoint },
+    { label: t('Model Name'), value: MODEL_ID },
   ]
 
   return (
@@ -56,7 +87,7 @@ export function HowItWorks() {
           <p className='text-muted-foreground mb-3 text-xs font-medium tracking-widest uppercase'>
             {t('How It Works')}
           </p>
-          <h2 className='text-2xl font-bold tracking-tight md:text-3xl'>
+          <h2 className='text-3xl font-bold tracking-[-0.02em] md:text-4xl'>
             {t('Three steps to get started')}
           </h2>
         </AnimateInView>
@@ -73,17 +104,55 @@ export function HowItWorks() {
                 <div className='text-muted-foreground border-border/50 bg-muted/30 flex size-16 items-center justify-center rounded-2xl border transition-colors'>
                   {step.icon}
                 </div>
-                <div className='bg-foreground text-background absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full text-xs font-bold'>
+                <div className='absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-xs font-bold text-white'>
                   {step.num}
                 </div>
               </div>
               <h3 className='mb-2 text-base font-semibold'>{step.title}</h3>
-              <p className='text-muted-foreground max-w-[240px] text-sm leading-relaxed'>
+              <p className='text-muted-foreground max-w-[260px] text-sm leading-relaxed'>
                 {step.desc}
               </p>
             </AnimateInView>
           ))}
         </div>
+
+        <AnimateInView
+          className='mx-auto mt-16 max-w-3xl'
+          animation='fade-up'
+          delay={200}
+        >
+          <div className='overflow-hidden rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/[0.07] via-transparent to-cyan-400/[0.07]'>
+            <div className='divide-border/40 grid divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0'>
+              {connection.map((row) => (
+                <div
+                  key={row.label}
+                  className='flex items-center justify-between gap-3 px-4 py-3.5'
+                >
+                  <div className='min-w-0'>
+                    <div className='text-muted-foreground text-xs'>
+                      {row.label}
+                    </div>
+                    <div className='truncate font-mono text-sm'>
+                      {row.value}
+                    </div>
+                  </div>
+                  <CopyButton value={row.value} tooltip={t('Copy')} />
+                </div>
+              ))}
+            </div>
+            <div className='border-border/40 bg-background/60 border-t p-4'>
+              <div className='mb-2 flex items-center justify-between'>
+                <span className='text-muted-foreground text-xs'>
+                  {t('Example')}
+                </span>
+                <CopyButton value={curl} tooltip={t('Copy')} />
+              </div>
+              <pre className='text-foreground/80 overflow-x-auto font-mono text-xs leading-relaxed'>
+                {curl}
+              </pre>
+            </div>
+          </div>
+        </AnimateInView>
       </div>
     </section>
   )
