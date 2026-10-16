@@ -699,3 +699,60 @@ export async function getPrefillGroups(
   const res = await api.get('/api/prefill_group', { params: { type } })
   return res.data
 }
+
+// ============================================================================
+// ClinePass Accounts
+// ============================================================================
+
+export type ClinePassWindow = {
+  type: string
+  percent_used: number
+  resets_at: number
+}
+
+export type ClinePassUsage = {
+  windows: ClinePassWindow[] | null
+  balance?: string
+  exhausted_until?: number
+  updated_time: number
+  error?: string
+}
+
+export type ClinePassChannel = {
+  id: number
+  name: string
+  status: number
+  status_reason: string
+  group: string
+  remark: string
+  usage: ClinePassUsage | null
+}
+
+export type ClinePassChannelsResponse = {
+  success: boolean
+  message?: string
+  data?: ClinePassChannel[]
+}
+
+/**
+ * Last known usage of every ClinePass account, without asking Cline.
+ */
+export async function getClinePassChannels(): Promise<ClinePassChannelsResponse> {
+  const res = await api.get(
+    '/api/channel/clinepass',
+    channelActionConfig({ disableDuplicate: true })
+  )
+  return res.data
+}
+
+/**
+ * Read every ClinePass account now and answer the refreshed list.
+ */
+export async function refreshClinePassChannels(): Promise<ClinePassChannelsResponse> {
+  const res = await api.post(
+    '/api/channel/clinepass/refresh',
+    {},
+    channelActionConfig()
+  )
+  return res.data
+}

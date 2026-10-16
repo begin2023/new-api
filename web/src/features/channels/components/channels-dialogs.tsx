@@ -20,6 +20,7 @@ import { CHANNEL_TYPE_VLLM, CHANNEL_TYPE_SGLANG } from '../constants'
 import { useChannels } from './channels-provider'
 import { BalanceQueryDialog } from './dialogs/balance-query-dialog'
 import { ChannelTestDialog } from './dialogs/channel-test-dialog'
+import { ClinePassUsageDialog } from './dialogs/clinepass-usage-dialog'
 import { CopyChannelDialog } from './dialogs/copy-channel-dialog'
 import { EditTagDialog } from './dialogs/edit-tag-dialog'
 import { FetchModelsDialog } from './dialogs/fetch-models-dialog'
@@ -84,6 +85,12 @@ export function ChannelsDialogs() {
       {/* Copy Channel Dialog */}
       <CopyChannelDialog
         open={open === 'copy-channel'}
+        onOpenChange={(v) => !v && setOpen(null)}
+      />
+
+      {/* ClinePass Accounts Dialog */}
+      <ClinePassUsageDialog
+        open={open === 'clinepass-usage'}
         onOpenChange={(v) => !v && setOpen(null)}
       />
 

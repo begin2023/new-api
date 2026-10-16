@@ -7279,6 +7279,21 @@
     "Zhipu": "Zhipu",
     "Zhipu GLM": "Zhipu GLM",
     "Zhipu V4": "Zhipu V4",
-    "Zoom": "Zoom"
+    "Zoom": "Zoom",
+    "ClinePass": "ClinePass",
+    "ClinePass accounts": "Аккаунты ClinePass",
+    "Windows of every ClinePass account behind this pool. An account out of window stops receiving traffic until it resets.": "Окна каждого аккаунта ClinePass в этом пуле. Аккаунт, исчерпавший окно, не получает трафик до сброса.",
+    "Refresh now": "Обновить сейчас",
+    "No ClinePass accounts": "Нет аккаунтов ClinePass",
+    "Add a channel whose base URL points at api.cline.bot, then refresh.": "Добавьте канал с базовым URL на api.cline.bot и обновите.",
+    "5-hour window": "Окно 5 часов",
+    "Weekly window": "Недельное окно",
+    "Monthly window": "Месячное окно",
+    "Not reported": "Не сообщается",
+    "Resets {{time}}": "Сброс {{time}}",
+    "Updated {{time}}": "Обновлено {{time}}",
+    "Failed to load ClinePass usage": "Не удалось загрузить использование ClinePass",
+    "Failed to refresh ClinePass usage": "Не удалось обновить использование ClinePass",
+    "ClinePass usage refreshed": "Использование ClinePass обновлено"
   }
 }

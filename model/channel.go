@@ -69,6 +69,40 @@ type ChannelInfo struct {
 	MultiKeyDisabledTime   map[int]int64         `json:"multi_key_disabled_time,omitempty"`   // key禁用时间列表，key index -> time
 	MultiKeyPollingIndex   int                   `json:"multi_key_polling_index"`             // 多Key模式下轮询的key索引
 	MultiKeyMode           constant.MultiKeyMode `json:"multi_key_mode"`
+	// ClinePass is the last usage snapshot read from a ClinePass account, kept
+	// so the admin panel can show it without asking Cline on every page load.
+	ClinePass *ClinePassUsage `json:"clinepass,omitempty"`
+}
+
+// ClinePassWindow is one ClinePass usage window as the account reports it.
+type ClinePassWindow struct {
+	Type        string  `json:"type"`         // five_hour, weekly, monthly
+	PercentUsed float64 `json:"percent_used"` // 0-100
+	ResetsAt    int64   `json:"resets_at"`    // unix seconds, 0 when Cline did not say
+}
+
+// ClinePassUsage is the last usage snapshot of a ClinePass account. Windows is
+// empty when the account has no ClinePass subscription, and Error keeps why the
+// last read failed so the panel can say so instead of showing stale numbers.
+type ClinePassUsage struct {
+	Windows        []ClinePassWindow `json:"windows"`
+	Balance        string            `json:"balance,omitempty"`
+	ExhaustedUntil int64             `json:"exhausted_until,omitempty"`
+	UpdatedTime    int64             `json:"updated_time"`
+	Error          string            `json:"error,omitempty"`
+}
+
+// Exhausted reports whether any window is at or over its limit.
+func (usage *ClinePassUsage) Exhausted() bool {
+	if usage == nil {
+		return false
+	}
+	for _, window := range usage.Windows {
+		if window.PercentUsed >= 100 {
+			return true
+		}
+	}
+	return false
 }
 
 type ChannelSortOptions struct {
@@ -602,6 +636,27 @@ func (channel *Channel) Update() error {
 	DB.Model(channel).First(channel, "id = ?", channel.Id)
 	err = channel.UpdateAbilities(nil)
 	return err
+}
+
+// UpdateClinePassUsage stores a ClinePass usage snapshot. ChannelInfo is shared
+// with multi-key state and the polling cursor, so the row is re-read under the
+// same per-channel lock before it is written.
+func UpdateClinePassUsage(channelId int, usage *ClinePassUsage) {
+	lock := GetChannelPollingLock(channelId)
+	lock.Lock()
+	defer lock.Unlock()
+
+	channel, err := GetChannelById(channelId, true)
+	if err != nil {
+		common.SysLog(common.LogText("failed to read channel for clinepass usage: channel_id=%d, error=%v", channelId, err))
+		return
+	}
+	channel.ChannelInfo.ClinePass = usage
+	if err := DB.Model(&Channel{}).Where("id = ?", channelId).Update("channel_info", channel.ChannelInfo).Error; err != nil {
+		common.SysLog(common.LogText("failed to update channel clinepass usage: channel_id=%d, error=%v", channelId, err))
+		return
+	}
+	CacheUpdateChannel(channel)
 }
 
 func (channel *Channel) UpdateResponseTime(responseTime int64) {

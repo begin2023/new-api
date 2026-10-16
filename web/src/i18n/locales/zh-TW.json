@@ -7279,6 +7279,21 @@
     "Zhipu": "智譜",
     "Zhipu GLM": "智譜GLM",
     "Zhipu V4": "智譜 V4",
-    "Zoom": "縮放"
+    "Zoom": "縮放",
+    "ClinePass": "ClinePass",
+    "ClinePass accounts": "ClinePass 帳號",
+    "Windows of every ClinePass account behind this pool. An account out of window stops receiving traffic until it resets.": "此池中所有 ClinePass 帳號的額度視窗。額度用盡的帳號在重置前不再接收流量。",
+    "Refresh now": "立即重新整理",
+    "No ClinePass accounts": "尚無 ClinePass 帳號",
+    "Add a channel whose base URL points at api.cline.bot, then refresh.": "新增一個 Base URL 指向 api.cline.bot 的管道，然後重新整理。",
+    "5-hour window": "5 小時視窗",
+    "Weekly window": "每週視窗",
+    "Monthly window": "每月視窗",
+    "Not reported": "未回報",
+    "Resets {{time}}": "重置於 {{time}}",
+    "Updated {{time}}": "更新於 {{time}}",
+    "Failed to load ClinePass usage": "載入 ClinePass 用量失敗",
+    "Failed to refresh ClinePass usage": "重新整理 ClinePass 用量失敗",
+    "ClinePass usage refreshed": "ClinePass 用量已重新整理"
   }
 }

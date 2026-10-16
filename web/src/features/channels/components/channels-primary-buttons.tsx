@@ -25,6 +25,7 @@ import {
   Tags,
   TestTube,
   DollarSign,
+  Gauge,
   ListChecks,
   SortAsc,
   RefreshCw,
@@ -171,6 +172,19 @@ export function ChannelsPrimaryButtons() {
           )}
         </Tooltip>
 
+        {/* ClinePass Accounts */}
+        <Button
+          onClick={() => {
+            setCurrentRow(null)
+            setOpen('clinepass-usage')
+          }}
+          size='sm'
+          variant='outline'
+        >
+          <Gauge className='h-4 w-4' />
+          <span className='max-sm:hidden'>{t('ClinePass')}</span>
+        </Button>
+
         {/* More Actions */}
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant='outline' size='sm' />}>
@@ -204,6 +218,15 @@ export function ChannelsPrimaryButtons() {
               <SortAsc className='mr-2 h-4 w-4' />
               {t('Sort by ID')}
             </DropdownMenuCheckboxItem>
+
+            <DropdownMenuSeparator className='sm:hidden' />
+
+            <DropdownMenuItem onClick={() => setOpen('clinepass-usage')}>
+              {t('ClinePass')}
+              <DropdownMenuShortcut>
+                <Gauge className='h-4 w-4' />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
 
             <DropdownMenuSeparator className='sm:hidden' />
 

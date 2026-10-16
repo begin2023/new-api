@@ -7279,6 +7279,21 @@
     "Zhipu": "Zhipu",
     "Zhipu GLM": "Zhipu GLM",
     "Zhipu V4": "Zhipu V 4",
-    "Zoom": "ズーム"
+    "Zoom": "ズーム",
+    "ClinePass": "ClinePass",
+    "ClinePass accounts": "ClinePass アカウント",
+    "Windows of every ClinePass account behind this pool. An account out of window stops receiving traffic until it resets.": "このプールにある各 ClinePass アカウントの使用枠です。枠を使い切ったアカウントはリセットまでトラフィックを受け取りません。",
+    "Refresh now": "今すぐ更新",
+    "No ClinePass accounts": "ClinePass アカウントがありません",
+    "Add a channel whose base URL points at api.cline.bot, then refresh.": "Base URL が api.cline.bot を指すチャネルを追加してから更新してください。",
+    "5-hour window": "5 時間枠",
+    "Weekly window": "週次枠",
+    "Monthly window": "月次枠",
+    "Not reported": "未報告",
+    "Resets {{time}}": "{{time}}にリセット",
+    "Updated {{time}}": "{{time}}に更新",
+    "Failed to load ClinePass usage": "ClinePass の使用量を読み込めませんでした",
+    "Failed to refresh ClinePass usage": "ClinePass の使用量を更新できませんでした",
+    "ClinePass usage refreshed": "ClinePass の使用量を更新しました"
   }
 }

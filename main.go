@@ -132,6 +132,10 @@ func main() {
 	// Codex credential auto-refresh check every 10 minutes, refresh when expires within 1 day
 	service.StartCodexCredentialAutoRefreshTask()
 
+	// ClinePass account windows (5-hour, weekly, monthly) drive routing, so they
+	// are read often. CLINEPASS_USAGE_REFRESH_MINUTES=0 turns the task off.
+	go service.StartClinePassUsageRefreshTask(common.GetEnvOrDefault("CLINEPASS_USAGE_REFRESH_MINUTES", 5))
+
 	// Subscription quota reset task (daily/weekly/monthly/custom)
 	service.StartSubscriptionQuotaResetTask()
 

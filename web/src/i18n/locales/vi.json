@@ -7279,6 +7279,21 @@
     "Zhipu": "Zhipu",
     "Zhipu GLM": "Zhipu GLM",
     "Zhipu V4": "Zhipu V4",
-    "Zoom": "Zoom"
+    "Zoom": "Zoom",
+    "ClinePass": "ClinePass",
+    "ClinePass accounts": "Tài khoản ClinePass",
+    "Windows of every ClinePass account behind this pool. An account out of window stops receiving traffic until it resets.": "Hạn mức của từng tài khoản ClinePass trong pool này. Tài khoản hết hạn mức sẽ không nhận lưu lượng cho đến khi được đặt lại.",
+    "Refresh now": "Làm mới ngay",
+    "No ClinePass accounts": "Chưa có tài khoản ClinePass",
+    "Add a channel whose base URL points at api.cline.bot, then refresh.": "Thêm một kênh có Base URL trỏ tới api.cline.bot rồi làm mới.",
+    "5-hour window": "Cửa sổ 5 giờ",
+    "Weekly window": "Cửa sổ hàng tuần",
+    "Monthly window": "Cửa sổ hàng tháng",
+    "Not reported": "Không báo cáo",
+    "Resets {{time}}": "Đặt lại {{time}}",
+    "Updated {{time}}": "Cập nhật {{time}}",
+    "Failed to load ClinePass usage": "Không tải được mức sử dụng ClinePass",
+    "Failed to refresh ClinePass usage": "Không làm mới được mức sử dụng ClinePass",
+    "ClinePass usage refreshed": "Đã làm mới mức sử dụng ClinePass"
   }
 }
