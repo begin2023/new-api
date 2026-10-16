@@ -114,6 +114,19 @@ export function RechargeFormCard({
 }: RechargeFormCardProps) {
   const { t } = useTranslation()
   const [localAmount, setLocalAmount] = useState(topupAmount.toString())
+  // The top-up link is the only way to reach the operator while online top-up
+  // and redemption codes are unavailable, so both notices offer it.
+  const contactLink = topupLink ? (
+    <a
+      href={topupLink}
+      target='_blank'
+      rel='noopener noreferrer'
+      className='mt-2 inline-flex items-center gap-1 font-medium underline-offset-4 hover:underline'
+    >
+      {t('Contact the administrator')}
+      <ExternalLink className='h-3 w-3' />
+    </a>
+  ) : null
 
   useEffect(() => {
     // Empty string must survive, otherwise the field can never be cleared
@@ -493,6 +506,7 @@ export function RechargeFormCard({
             {t(
               'Online topup is not enabled. Please use redemption code or contact administrator.'
             )}
+            {contactLink}
           </AlertDescription>
         </Alert>
       )}
@@ -566,6 +580,7 @@ export function RechargeFormCard({
             {t(
               'Redemption codes are disabled until the administrator confirms compliance terms.'
             )}
+            {contactLink}
           </AlertDescription>
         </Alert>
       )}
