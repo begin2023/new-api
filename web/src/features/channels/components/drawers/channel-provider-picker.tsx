@@ -54,7 +54,11 @@ import {
   getChannelPluginExtensions,
   LEGACY_TASK_PLUGIN_KEYS,
 } from '../../lib/channel-plugin-extensions'
-import { CLINE_PASS_PRESET, isClinePassPreset } from '../../lib/clinepass'
+import {
+  CLINE_PASS_ICON,
+  CLINE_PASS_PRESET,
+  isClinePassPreset,
+} from '../../lib/clinepass'
 import { ChannelTypeLogo } from '../channel-type-badge'
 
 type ChannelProviderPickerProps = {
@@ -108,6 +112,7 @@ export function ChannelProviderPicker(props: ChannelProviderPickerProps) {
       label: string
       target: ChannelProviderTarget
       plugin?: TaskPluginOption
+      icon?: string
       description?: string
       detail?: string
       extensionNames?: string
@@ -178,9 +183,10 @@ export function ChannelProviderPicker(props: ChannelProviderPickerProps) {
         })
         // ClinePass accounts are Advanced Custom channels with a fixed base URL
         // and chat route, offered as their own provider so one account can be
-        // added per subscription.
+        // added per subscription. It leads the list: the accounts are the pool
+        // an administrator comes here to grow.
         if (option.value === CHANNEL_TYPE_ADVANCED_CUSTOM) {
-          entries.push({
+          entries.unshift({
             id: `builtin:${CHANNEL_TYPE_ADVANCED_CUSTOM}:${CLINE_PASS_PRESET}`,
             label: t('ClinePass'),
             target: {
@@ -188,6 +194,7 @@ export function ChannelProviderPicker(props: ChannelProviderPickerProps) {
               type: CHANNEL_TYPE_ADVANCED_CUSTOM,
               preset: CLINE_PASS_PRESET,
             },
+            icon: CLINE_PASS_ICON,
             description: t('ClinePass subscription account'),
             searchText: `${CHANNEL_TYPE_ADVANCED_CUSTOM} clinepass cline pass ${t('ClinePass')}`,
           })
@@ -328,6 +335,7 @@ export function ChannelProviderPicker(props: ChannelProviderPickerProps) {
                               ? option.target.type
                               : CHANNEL_TYPE_TASK_PLUGIN
                           }
+                          icon={option.icon}
                           size={20}
                         />
                       )}

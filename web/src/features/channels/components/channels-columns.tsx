@@ -86,6 +86,7 @@ import {
   isTagAggregateRow,
   type TagRow,
 } from '../lib'
+import { CLINE_PASS_ICON, isClinePassBaseURL } from '../lib/clinepass'
 import { parseUpstreamUpdateMeta } from '../lib/upstream-update-utils'
 import type { Channel } from '../types'
 import { ChannelRowActionsLayoutContext } from './channel-row-actions-context'
@@ -817,8 +818,12 @@ export function useChannelsColumns(
           const type = row.getValue('type') as number
           const typeNameKey = getChannelTypeLabel(type)
           const typeName = t(typeNameKey)
-          const iconName = getChannelTypeIcon(type)
           const channel = row.original as Channel
+          // A ClinePass account is an Advanced Custom channel, so it takes
+          // Cline's own logo instead of the New API one its type maps to.
+          const iconName = isClinePassBaseURL(channel.base_url)
+            ? CLINE_PASS_ICON
+            : `${getChannelTypeIcon(type)}.Color`
           const isMultiKey = isMultiKeyChannel(channel)
           const multiKeyMode = channel.channel_info?.multi_key_mode ?? 'random'
           const MultiKeyModeIcon =
@@ -868,7 +873,7 @@ export function useChannelsColumns(
                       }
                     >
                       <ProviderBadge
-                        iconKey={`${iconName}.Color`}
+                        iconKey={iconName}
                         iconSize={18}
                         label={typeName}
                         colorText={false}

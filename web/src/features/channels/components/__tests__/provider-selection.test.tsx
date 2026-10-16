@@ -886,9 +886,14 @@ test('ClinePass is offered next to Advanced Custom as its own preset', async () 
     />
   )
   await user.click(screen.getByRole('tab', { name: 'Custom' }))
-  // Both stay selectable, so one account can be added per subscription.
+  const panel = screen.getByRole('tabpanel', { name: 'Custom' })
+  // Both stay selectable, so one account can be added per subscription, and
+  // ClinePass leads the list.
+  expect(within(panel).getAllByRole('option')[0]).toHaveAccessibleName(
+    'ClinePass Built-in #58'
+  )
   expect(
-    screen.getByRole('option', { name: 'Advanced Custom Built-in #58' })
+    within(panel).getByRole('option', { name: 'Advanced Custom Built-in #58' })
   ).toBeVisible()
   await user.click(
     screen.getByRole('option', { name: 'ClinePass Built-in #58' })

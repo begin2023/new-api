@@ -19,6 +19,8 @@ For commercial licensing, please contact support@quantumnous.com
 import type { AdvancedCustomConfig } from '../types'
 
 export const CLINE_PASS_BASE_URL = 'https://api.cline.bot/api'
+/** Cline's own logo, so a ClinePass account is not mistaken for Advanced Custom. */
+export const CLINE_PASS_ICON = 'Cline.Avatar'
 // The name users call. Cline serves the same model under a prefixed name, so a
 // ClinePass channel maps one to the other and never shows the prefix.
 export const CLINE_PASS_MODEL = 'deepseek-v4.1-flash'

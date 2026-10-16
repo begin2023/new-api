@@ -41,6 +41,8 @@ import { getChannelTypeIcon } from '../lib/channel-utils'
 export function ChannelTypeLogo(props: {
   type: number
   plugin?: PluginIconInput
+  /** Overrides the type's own logo, for a provider preset that shares a type. */
+  icon?: string
   size?: number
   className?: string
 }) {
@@ -63,7 +65,10 @@ export function ChannelTypeLogo(props: {
   }
   return (
     <span className={cn('inline-flex shrink-0', props.className)}>
-      {getLobeIcon(`${getChannelTypeIcon(props.type)}.Color`, size)}
+      {getLobeIcon(
+        props.icon ?? `${getChannelTypeIcon(props.type)}.Color`,
+        size
+      )}
     </span>
   )
 }
