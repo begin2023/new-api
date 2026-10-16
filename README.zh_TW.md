@@ -159,26 +159,26 @@ docker run --name new-api -d --restart unless-stopped \
   calciumion/new-api:latest
 ```
 
-開啟 [http://localhost:3000](http://localhost:3000)，依初始化精靈建立管理員帳號。SQLite 資料庫存放在掛載的 `data` 目錄中，更換容器後仍會保留。
+開啟 [http://106.55.38.170:3000](http://106.55.38.170:3000)，依初始化精靈建立管理員帳號。SQLite 資料庫存放在掛載的 `data` 目錄中，更換容器後仍會保留。
 
 ### 發起第一次請求
 
 1. 新增渠道，填寫上游 API Key、可用模型和所屬群組，執行渠道測試。
 2. 設定模型價格，確保呼叫使用者有可用額度或有效訂閱。
 3. 在控制台建立 API Key，確保它能存取對應群組和模型。
-4. 對於 OpenAI 相容用戶端，將 Base URL 設為 `http://localhost:3000/v1`，金鑰使用 **New API 簽發的 Key**。
+4. 對於 OpenAI 相容用戶端，將 Base URL 設為 `http://106.55.38.170:3000/v1`，金鑰使用 **New API 簽發的 Key**。
 
 在終端機中將 `NEW_API_KEY` 環境變數設為該金鑰，查詢它可以存取的模型：
 
 ```bash
-curl --fail-with-body http://localhost:3000/v1/models \
+curl --fail-with-body http://106.55.38.170:3000/v1/models \
   -H "Authorization: Bearer ${NEW_API_KEY}"
 ```
 
 然後呼叫 Responses，將 `your-enabled-model` 替換為已啟用且支援該介面的模型名稱：
 
 ```bash
-curl --fail-with-body http://localhost:3000/v1/responses \
+curl --fail-with-body http://106.55.38.170:3000/v1/responses \
   -H "Authorization: Bearer ${NEW_API_KEY}" \
   -H "Content-Type: application/json" \
   -d '{"model":"your-enabled-model","input":"Hello!"}'

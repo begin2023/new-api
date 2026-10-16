@@ -181,6 +181,13 @@ it('compares the vendor price with what this site charges', () => {
   expect(screen.getByText('0.3× of the vendor price')).toBeVisible()
   expect(screen.getByText('$0.3 / $1.2 / $0.006')).toBeVisible()
   expect(screen.getByText('$0.09 / $0.36 / $0.0018')).toBeVisible()
+  // The vendor's own hours wording stands in for the tier conditions, so the
+  // tier table and the base-price group table are left out.
+  expect(
+    screen.getByText(/^The off-peak price is half of the peak price\./)
+  ).toBeVisible()
+  expect(screen.queryByText('Tiered price table')).not.toBeInTheDocument()
+  expect(screen.queryByText('Pricing by Group')).not.toBeInTheDocument()
 })
 
 it('explains missing task metadata while retaining the original expression', () => {

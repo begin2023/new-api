@@ -7305,6 +7305,7 @@
     "Off-peak": "Giờ thấp điểm",
     "Our price": "Giá của chúng tôi",
     "{{condition}}, excluding {{excluded}}": "{{condition}}, trừ {{excluded}}",
-    "{{year}}: {{dates}}": "{{year}}: {{dates}}"
+    "{{year}}: {{dates}}": "{{year}}: {{dates}}",
+    "The off-peak price is half of the peak price. Peak hours are Monday to Friday 09:00 - 12:00 and 14:00 - 18:00 Beijing time, excluding Chinese public holidays; every other hour, including weekends and Chinese public holidays, is off-peak.": "Giá giờ thấp điểm bằng một nửa giá giờ cao điểm. Giờ cao điểm là thứ Hai đến thứ Sáu theo giờ Bắc Kinh 9:00 - 12:00 và 14:00 - 18:00, không tính ngày lễ chính thức của Trung Quốc; các khung giờ còn lại, gồm cuối tuần và ngày lễ chính thức của Trung Quốc, đều là giờ thấp điểm."
   }
 }

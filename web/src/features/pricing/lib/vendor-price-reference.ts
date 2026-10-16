@@ -28,6 +28,8 @@ For commercial licensing, please contact support@quantumnous.com
 export type VendorPriceReference = {
   vendor: string
   multiplier: number
+  /** i18n key holding the vendor's own wording for its peak and off-peak hours. */
+  hoursNoteKey: string
   peak: VendorWindowPrice
   offPeak: VendorWindowPrice
 }
@@ -42,6 +44,8 @@ export const VENDOR_PRICE_REFERENCES: Record<string, VendorPriceReference> = {
   'deepseek-v4.1-flash': {
     vendor: 'DeepSeek',
     multiplier: 0.3,
+    hoursNoteKey:
+      'The off-peak price is half of the peak price. Peak hours are Monday to Friday 09:00 - 12:00 and 14:00 - 18:00 Beijing time, excluding Chinese public holidays; every other hour, including weekends and Chinese public holidays, is off-peak.',
     peak: { input: 0.3, output: 1.2, cacheRead: 0.006 },
     offPeak: { input: 0.15, output: 0.6, cacheRead: 0.003 },
   },

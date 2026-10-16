@@ -7305,6 +7305,7 @@
     "Off-peak": "Off-peak",
     "Our price": "Our price",
     "{{condition}}, excluding {{excluded}}": "{{condition}}, excluding {{excluded}}",
-    "{{year}}: {{dates}}": "{{year}}: {{dates}}"
+    "{{year}}: {{dates}}": "{{year}}: {{dates}}",
+    "The off-peak price is half of the peak price. Peak hours are Monday to Friday 09:00 - 12:00 and 14:00 - 18:00 Beijing time, excluding Chinese public holidays; every other hour, including weekends and Chinese public holidays, is off-peak.": "The off-peak price is half of the peak price. Peak hours are Monday to Friday 09:00 - 12:00 and 14:00 - 18:00 Beijing time, excluding Chinese public holidays; every other hour, including weekends and Chinese public holidays, is off-peak."
   }
 }

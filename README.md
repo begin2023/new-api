@@ -175,26 +175,26 @@ docker run --name new-api -d --restart unless-stopped \
   calciumion/new-api:latest
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and complete the setup wizard to create the administrator account. The `data` directory persists the SQLite database across container replacements.
+Open [http://106.55.38.170:3000](http://106.55.38.170:3000) and complete the setup wizard to create the administrator account. The `data` directory persists the SQLite database across container replacements.
 
 ### Make your first request
 
 1. Add a channel with your upstream API key, available models, and group assignment; run a channel test.
 2. Configure model pricing and ensure the user has quota or a valid subscription.
 3. Create an API key in the console with access to the same group and models.
-4. Set your client's base URL to `http://localhost:3000/v1` for OpenAI-compatible clients and use the **New API-issued key**.
+4. Set your client's base URL to `http://106.55.38.170:3000/v1` for OpenAI-compatible clients and use the **New API-issued key**.
 
 Set `NEW_API_KEY` in your shell to that key. List the models accessible to it:
 
 ```bash
-curl --fail-with-body http://localhost:3000/v1/models \
+curl --fail-with-body http://106.55.38.170:3000/v1/models \
   -H "Authorization: Bearer ${NEW_API_KEY}"
 ```
 
 Then call Responses, replacing `your-enabled-model` with an enabled model that supports this interface:
 
 ```bash
-curl --fail-with-body http://localhost:3000/v1/responses \
+curl --fail-with-body http://106.55.38.170:3000/v1/responses \
   -H "Authorization: Bearer ${NEW_API_KEY}" \
   -H "Content-Type: application/json" \
   -d '{"model":"your-enabled-model","input":"Hello!"}'

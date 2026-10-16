@@ -123,6 +123,8 @@ export const STATIC_I18N_KEYS = [
   '{{condition}} ({{timezone}})',
   '{{condition}}, excluding {{excluded}}',
   '{{year}}: {{dates}}',
+  // Vendor price comparison notes.
+  'The off-peak price is half of the peak price. Peak hours are Monday to Friday 09:00 - 12:00 and 14:00 - 18:00 Beijing time, excluding Chinese public holidays; every other hour, including weekends and Chinese public holidays, is off-peak.',
 
   // Billing expression simulation diagnostics and conditional labels.
   'Current period price',

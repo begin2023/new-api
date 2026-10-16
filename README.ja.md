@@ -160,26 +160,26 @@ docker run --name new-api -d --restart unless-stopped \
   calciumion/new-api:latest
 ```
 
-[http://localhost:3000](http://localhost:3000) を開き、初期設定ウィザードで管理者アカウントを作成します。SQLite データベースはマウントした `data` ディレクトリに保存され、コンテナを置き換えても残ります。
+[http://106.55.38.170:3000](http://106.55.38.170:3000) を開き、初期設定ウィザードで管理者アカウントを作成します。SQLite データベースはマウントした `data` ディレクトリに保存され、コンテナを置き換えても残ります。
 
 ### 最初のリクエスト
 
 1. 上流の API キー、利用するモデル、グループを設定してチャネルを追加し、チャネルテストを実行します。
 2. モデルの料金を設定し、ユーザーに利用可能なクォータまたは有効なサブスクリプションがあることを確認します。
 3. 管理画面で、同じグループとモデルにアクセスできる API キーを作成します。
-4. OpenAI 互換クライアントでは Base URL を `http://localhost:3000/v1` に設定し、**New API が発行したキー**を使います。
+4. OpenAI 互換クライアントでは Base URL を `http://106.55.38.170:3000/v1` に設定し、**New API が発行したキー**を使います。
 
 シェルの `NEW_API_KEY` にそのキーを設定し、アクセス可能なモデルを確認します。
 
 ```bash
-curl --fail-with-body http://localhost:3000/v1/models \
+curl --fail-with-body http://106.55.38.170:3000/v1/models \
   -H "Authorization: Bearer ${NEW_API_KEY}"
 ```
 
 次に Responses を呼び出します。`your-enabled-model` は、このインターフェースに対応する有効なモデル名に置き換えてください。
 
 ```bash
-curl --fail-with-body http://localhost:3000/v1/responses \
+curl --fail-with-body http://106.55.38.170:3000/v1/responses \
   -H "Authorization: Bearer ${NEW_API_KEY}" \
   -H "Content-Type: application/json" \
   -d '{"model":"your-enabled-model","input":"Hello!"}'

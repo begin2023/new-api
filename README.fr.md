@@ -160,26 +160,26 @@ docker run --name new-api -d --restart unless-stopped \
   calciumion/new-api:latest
 ```
 
-Ouvrez [http://localhost:3000](http://localhost:3000) et suivez l'assistant pour créer le compte administrateur. Le répertoire `data` conserve la base SQLite lors du remplacement du conteneur.
+Ouvrez [http://106.55.38.170:3000](http://106.55.38.170:3000) et suivez l'assistant pour créer le compte administrateur. Le répertoire `data` conserve la base SQLite lors du remplacement du conteneur.
 
 ### Première requête
 
 1. Ajoutez un canal avec votre clé API amont, ses modèles et son groupe, puis lancez un test du canal.
 2. Configurez les prix des modèles et vérifiez que l'utilisateur dispose d'un quota ou d'un abonnement valide.
 3. Créez une clé API dans la console, autorisée à accéder au même groupe et aux mêmes modèles.
-4. Pour un client compatible OpenAI, utilisez `http://localhost:3000/v1` comme URL de base et la **clé émise par New API**.
+4. Pour un client compatible OpenAI, utilisez `http://106.55.38.170:3000/v1` comme URL de base et la **clé émise par New API**.
 
 Définissez `NEW_API_KEY` dans votre shell avec cette clé, puis listez les modèles accessibles :
 
 ```bash
-curl --fail-with-body http://localhost:3000/v1/models \
+curl --fail-with-body http://106.55.38.170:3000/v1/models \
   -H "Authorization: Bearer ${NEW_API_KEY}"
 ```
 
 Appelez ensuite Responses en remplaçant `your-enabled-model` par un modèle activé qui prend en charge cette interface :
 
 ```bash
-curl --fail-with-body http://localhost:3000/v1/responses \
+curl --fail-with-body http://106.55.38.170:3000/v1/responses \
   -H "Authorization: Bearer ${NEW_API_KEY}" \
   -H "Content-Type: application/json" \
   -d '{"model":"your-enabled-model","input":"Hello!"}'

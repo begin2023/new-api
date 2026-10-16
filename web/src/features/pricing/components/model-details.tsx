@@ -1580,6 +1580,16 @@ export function ModelDetailsContent(props: ModelDetailsContentProps) {
     Boolean(props.model.billing_expr)
 
   const simpleTaskPricing = hasSimpleTaskPricing(props.model)
+  const vendorReference = VENDOR_PRICE_REFERENCES[props.model.model_name || '']
+  // The vendor comparison already lists the tier prices, so the tier table and
+  // a group table that bills every group at the base price only repeat it.
+  const showTierBreakdown =
+    isDynamic && !simpleTaskPricing && vendorReference === undefined
+  const showGroupPricing =
+    vendorReference === undefined ||
+    getAvailableGroups(props.model, props.usableGroup || {}).some(
+      (group) => (props.groupRatio[group] || 1) !== 1
+    )
   const visibleTabs = TAB_VALUES.filter(
     (value) => !TAB_META[value].adminOnly || isAdmin
   )
@@ -1623,6 +1633,11 @@ export function ModelDetailsContent(props: ModelDetailsContentProps) {
 
           <section className='bg-card/60 space-y-5 rounded-xl border p-4 shadow-sm'>
             <SectionTitle>{t('Pricing')}</SectionTitle>
+            {vendorReference && (
+              <p className='text-sm font-semibold'>
+                {t(vendorReference.hoursNoteKey)}
+              </p>
+            )}
             {showBasePrices && (
               <PriceSection
                 model={props.model}
@@ -1633,7 +1648,7 @@ export function ModelDetailsContent(props: ModelDetailsContentProps) {
               />
             )}
             <VendorPriceComparison model={props.model} />
-            {isDynamic && !simpleTaskPricing && (
+            {showTierBreakdown && (
               <DynamicPricingBreakdown
                 billingExpr={props.model.billing_expr}
                 usageSchema={props.model.billing_usage_schema}
@@ -1644,16 +1659,18 @@ export function ModelDetailsContent(props: ModelDetailsContentProps) {
                 }}
               />
             )}
-            <GroupPricingSection
-              model={props.model}
-              groupRatio={props.groupRatio}
-              usableGroup={props.usableGroup}
-              autoGroups={props.autoGroups}
-              priceRate={props.priceRate}
-              usdExchangeRate={props.usdExchangeRate}
-              tokenUnit={props.tokenUnit}
-              showRechargePrice={showRechargePrice}
-            />
+            {showGroupPricing && (
+              <GroupPricingSection
+                model={props.model}
+                groupRatio={props.groupRatio}
+                usableGroup={props.usableGroup}
+                autoGroups={props.autoGroups}
+                priceRate={props.priceRate}
+                usdExchangeRate={props.usdExchangeRate}
+                tokenUnit={props.tokenUnit}
+                showRechargePrice={showRechargePrice}
+              />
+            )}
           </section>
 
           <ModelBackendDetailsSection model={props.model} />

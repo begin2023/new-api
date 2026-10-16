@@ -3,6 +3,21 @@
 ClinePass 是 Cline 的订阅制服务，一个订阅包含 5 小时 / 每周 / 每月三个用量窗口。
 本功能把多个 ClinePass 账号聚合成一个号池，对用户只暴露一个模型名。
 
+## 调用地址
+
+本站地址：`http://106.55.38.170:3000`
+
+OpenAI 兼容客户端的 Base URL 填 `http://106.55.38.170:3000/v1`，密钥使用本站签发的 API Key：
+
+```bash
+curl http://106.55.38.170:3000/v1/chat/completions \
+  -H "Authorization: Bearer $NEW_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"deepseek-v4.1-flash","messages":[{"role":"user","content":"Hello!"}]}'
+```
+
+该地址来自 系统设置 → 通用设置 里的 `ServerAddress`，站点内 API 文档、聊天预设等处的示例地址都取自它。
+
 ## 核心概念
 
 | 概念 | 对应到 new-api |
