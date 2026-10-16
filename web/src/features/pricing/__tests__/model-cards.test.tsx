@@ -30,6 +30,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createJSONStorage } from 'zustand/middleware'
 
 import { api } from '@/lib/api'
+import { ROLE } from '@/lib/roles'
+import { useAuthStore } from '@/stores/auth-store'
 import {
   DEFAULT_CURRENCY_CONFIG,
   useSystemConfigStore,
@@ -76,9 +78,20 @@ beforeEach(() => {
   queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0 } },
   })
+  // Performance metrics are administrator-only, so the metrics tests below
+  // render as one.
+  useAuthStore.setState({
+    auth: {
+      ...useAuthStore.getState().auth,
+      user: { id: 1, username: 'root', role: ROLE.SUPER_ADMIN } as never,
+    },
+  })
 })
 afterEach(() => {
   queryClient.clear()
+  useAuthStore.setState({
+    auth: { ...useAuthStore.getState().auth, user: null },
+  })
   useSystemConfigStore
     .getState()
     .setConfig({ currency: { ...DEFAULT_CURRENCY_CONFIG } })
@@ -618,6 +631,25 @@ describe('model cards', () => {
     expect(screen.getByRole('button', { name: 'Next page' })).toBeDisabled()
     await user.click(screen.getByRole('button', { name: 'Previous page' }))
     expect(screen.getByRole('heading', { name: 'model-1' })).toBeVisible()
+  })
+
+  it('leaves performance metrics out for a visitor', async () => {
+    useAuthStore.setState({
+      auth: { ...useAuthStore.getState().auth, user: null },
+    })
+    const request = vi.spyOn(api, 'get').mockResolvedValue({
+      data: { success: true, data: { models: [] } },
+    })
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ModelCardGrid models={[pricingModel()]} onModelClick={vi.fn()} />
+      </QueryClientProvider>
+    )
+    expect(screen.getByRole('button', { name: 'Details' })).toBeVisible()
+    expect(
+      screen.queryByLabelText('Performance metrics for the last 24 hours')
+    ).not.toBeInTheDocument()
+    expect(request).not.toHaveBeenCalled()
   })
 
   it('switches the card grid to three columns at the xl breakpoint instead of 2xl', () => {

@@ -121,6 +121,8 @@ export const STATIC_I18N_KEYS = [
   '{{first}} and {{second}}',
   '{{first}} or {{second}}',
   '{{condition}} ({{timezone}})',
+  '{{condition}}, excluding {{excluded}}',
+  '{{year}}: {{dates}}',
 
   // Billing expression simulation diagnostics and conditional labels.
   'Current period price',

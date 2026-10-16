@@ -7299,6 +7299,12 @@
     "This will append 3 template rules (Codex CLI, Claude CLI and ClinePass per API key) to the existing rule list.": "Thao tác này sẽ thêm 3 quy tắc mẫu (Codex CLI, Claude CLI và ClinePass theo từng API Key) vào danh sách quy tắc hiện có.",
     "ClinePass subscription account": "Tài khoản đăng ký ClinePass",
     "{{remaining}} / {{total}} left": "Còn {{remaining}} / {{total}}",
-    "This will append the template rules that are not in the list yet (Codex CLI, Claude CLI and ClinePass per API key).": "Chỉ các quy tắc mẫu chưa có trong danh sách mới được thêm vào (Codex CLI, Claude CLI và ClinePass theo khóa API)."
+    "This will append the template rules that are not in the list yet (Codex CLI, Claude CLI and ClinePass per API key).": "Chỉ các quy tắc mẫu chưa có trong danh sách mới được thêm vào (Codex CLI, Claude CLI và ClinePass theo khóa API).",
+    "Vendor price comparison": "So sánh giá nhà cung cấp",
+    "{{multiplier}}× of the vendor price": "{{multiplier}}× giá nhà cung cấp",
+    "Off-peak": "Giờ thấp điểm",
+    "Our price": "Giá của chúng tôi",
+    "{{condition}}, excluding {{excluded}}": "{{condition}}, trừ {{excluded}}",
+    "{{year}}: {{dates}}": "{{year}}: {{dates}}"
   }
 }

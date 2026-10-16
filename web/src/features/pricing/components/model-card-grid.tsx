@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { getPerfMetricsSummary } from '@/features/performance-metrics/api'
+import { useIsAdmin } from '@/hooks/use-admin'
 import { requireServerSuccess } from '@/lib/server-error-message'
 
 import { DEFAULT_PRICING_PAGE_SIZE, DEFAULT_TOKEN_UNIT } from '../constants'
@@ -44,6 +45,7 @@ export const ModelCardGrid = memo(function ModelCardGrid(
   props: ModelCardGridProps
 ) {
   const { t } = useTranslation()
+  const isAdmin = useIsAdmin()
   const [page, setPage] = useState(1)
   const pageSize = DEFAULT_PRICING_PAGE_SIZE
   const tokenUnit = props.tokenUnit ?? DEFAULT_TOKEN_UNIT
@@ -59,7 +61,7 @@ export const ModelCardGrid = memo(function ModelCardGrid(
     queryKey: ['perf-metrics-summary', 24, recentModels],
     queryFn: async () =>
       requireServerSuccess(await getPerfMetricsSummary(24, recentModels)),
-    enabled: recentModels.length > 0,
+    enabled: isAdmin && recentModels.length > 0,
     staleTime: 60 * 1000,
     retry: false,
   })
@@ -104,6 +106,7 @@ export const ModelCardGrid = memo(function ModelCardGrid(
             showRechargePrice={props.showRechargePrice}
             selectedGroup={props.selectedGroup}
             perf={perfMap.get(model.model_name || '')}
+            showPerfMetrics={isAdmin}
             onClick={props.onModelClick}
           />
         ))}

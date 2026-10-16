@@ -152,6 +152,37 @@ it('shows nested task conditions and prices in detail and group tables without a
   expect(screen.queryByText('Matched')).not.toBeInTheDocument()
 })
 
+it('compares the vendor price with what this site charges', () => {
+  vi.spyOn(api, 'get').mockResolvedValue({ data: { data: { groups: [] } } })
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+  clients.push(client)
+  const resold: PricingModel = {
+    ...model,
+    model_name: 'deepseek-v4.1-flash',
+    billing_expr: 'tier("base", p * 0.045 + c * 0.18 + cr * 0.0009)',
+  }
+  render(
+    <QueryClientProvider client={client}>
+      <ModelDetailsContent
+        model={resold}
+        groupRatio={{ default: 1 }}
+        usableGroup={{ default: { desc: '', ratio: 1 } }}
+        endpointMap={{}}
+        autoGroups={[]}
+        priceRate={1}
+        usdExchangeRate={1}
+        tokenUnit='M'
+      />
+    </QueryClientProvider>
+  )
+  expect(screen.getByText('Vendor price comparison')).toBeVisible()
+  expect(screen.getByText('0.3× of the vendor price')).toBeVisible()
+  expect(screen.getByText('$0.3 / $1.2 / $0.006')).toBeVisible()
+  expect(screen.getByText('$0.09 / $0.36 / $0.0018')).toBeVisible()
+})
+
 it('explains missing task metadata while retaining the original expression', () => {
   const expression = 'tier("base", u("seconds") * 0.09)'
   render(<DynamicPricingBreakdown billingExpr={expression} />)

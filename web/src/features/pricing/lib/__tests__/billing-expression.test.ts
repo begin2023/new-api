@@ -147,6 +147,20 @@ describe('local billing expression evaluation', () => {
       formatBillingCondition(`!(${peakCondition})`, translations.t, 'zh')
     ).toBe('周一至周五 09:00至12:00或14:00至18:00以外的时段（Asia/Shanghai）')
   })
+  test('collapses holiday windows into one clause instead of one per window', async () => {
+    const translations = createInstance()
+    await translations.init({ lng: 'zh', resources: { zh } })
+    const holiday = `${peakCondition.replace(
+      ' && ((hour',
+      ' && !(year("Asia/Shanghai") == 2026 && month("Asia/Shanghai") == 2 && day("Asia/Shanghai") >= 15 && day("Asia/Shanghai") <= 23) && !(year("Asia/Shanghai") == 2026 && month("Asia/Shanghai") == 10 && day("Asia/Shanghai") >= 1 && day("Asia/Shanghai") <= 7) && ((hour'
+    )}`
+    expect(formatBillingCondition(holiday, translations.t, 'zh')).toBe(
+      '周一至周五 09:00至12:00或14:00至18:00，不含 2026 年：2/15至23、10/1至7（Asia/Shanghai）'
+    )
+    expect(formatBillingCondition(`!(${holiday})`, translations.t, 'zh')).toBe(
+      '周一至周五 09:00至12:00或14:00至18:00，不含 2026 年：2/15至23、10/1至7以外的时段（Asia/Shanghai）'
+    )
+  })
   test.each([
     ['zhCN', 'weekday("UTC") == 1', '周一 (UTC)'],
     ['zhTW', 'weekday("UTC") == 1', '週一 (UTC)'],

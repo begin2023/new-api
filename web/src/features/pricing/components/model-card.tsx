@@ -53,6 +53,9 @@ export interface ModelCardProps {
   showRechargePrice?: boolean
   selectedGroup?: string
   perf?: ModelPerfBadgeData
+  /** Performance and availability are administrator-only, so the card leaves
+   *  the metrics out for anyone else. */
+  showPerfMetrics?: boolean
 }
 
 export const ModelCard = memo(function ModelCard(props: ModelCardProps) {
@@ -394,19 +397,32 @@ export const ModelCard = memo(function ModelCard(props: ModelCardProps) {
         )}
       </CardContent>
       <CardFooter className='mt-auto border-0 bg-transparent pt-0'>
-        <ModelPerfBadge
-          perf={props.perf}
-          className='border-border/60 border-t pt-2'
-        >
-          <Button
-            variant='ghost'
-            size='sm'
-            onClick={() => props.onClick(props.model.model_name || '')}
+        {props.showPerfMetrics === false ? (
+          <div className='border-border/60 flex w-full min-w-0 items-center justify-end border-t pt-2'>
+            <Button
+              variant='ghost'
+              size='sm'
+              onClick={() => props.onClick(props.model.model_name || '')}
+            >
+              {t('Details')}
+              <ChevronRight aria-hidden className='size-3.5' />
+            </Button>
+          </div>
+        ) : (
+          <ModelPerfBadge
+            perf={props.perf}
+            className='border-border/60 border-t pt-2'
           >
-            {t('Details')}
-            <ChevronRight aria-hidden className='size-3.5' />
-          </Button>
-        </ModelPerfBadge>
+            <Button
+              variant='ghost'
+              size='sm'
+              onClick={() => props.onClick(props.model.model_name || '')}
+            >
+              {t('Details')}
+              <ChevronRight aria-hidden className='size-3.5' />
+            </Button>
+          </ModelPerfBadge>
+        )}
       </CardFooter>
     </Card>
   )

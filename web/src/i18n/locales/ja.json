@@ -7299,6 +7299,12 @@
     "This will append 3 template rules (Codex CLI, Claude CLI and ClinePass per API key) to the existing rule list.": "既存のルール一覧に 3 つのテンプレートルール（Codex CLI、Claude CLI、ClinePass を API キーごとに固定）を追加します。",
     "ClinePass subscription account": "ClinePass サブスクリプションアカウント",
     "{{remaining}} / {{total}} left": "残り {{remaining}} / {{total}}",
-    "This will append the template rules that are not in the list yet (Codex CLI, Claude CLI and ClinePass per API key).": "まだ一覧にないテンプレートルールのみを追加します（Codex CLI、Claude CLI、ClinePass の API キー単位固定）。"
+    "This will append the template rules that are not in the list yet (Codex CLI, Claude CLI and ClinePass per API key).": "まだ一覧にないテンプレートルールのみを追加します（Codex CLI、Claude CLI、ClinePass の API キー単位固定）。",
+    "Vendor price comparison": "ベンダー価格との比較",
+    "{{multiplier}}× of the vendor price": "ベンダー価格の {{multiplier}} 倍",
+    "Off-peak": "オフピーク",
+    "Our price": "当サイト価格",
+    "{{condition}}, excluding {{excluded}}": "{{condition}}（{{excluded}}を除く）",
+    "{{year}}: {{dates}}": "{{year}} 年：{{dates}}"
   }
 }

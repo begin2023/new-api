@@ -30,6 +30,8 @@ type Description = {
   kind: 'calendar' | 'clock' | 'combined'
   timezone: string
   disjunction?: boolean
+  /** A date window the condition carves out of the times around it. */
+  exclusion?: boolean
 }
 type TimeComparison = {
   name: TimeFunction
@@ -66,6 +68,87 @@ function timeComparison(node: ExpressionNode): TimeComparison | null {
     operator: node.operator,
     value: node.right.value,
   }
+}
+
+type DateWindow = {
+  year: number
+  month: number
+  startDay: number
+  endDay: number
+}
+
+/**
+ * A holiday window is written as `!(year == Y && month == M && day between A
+ * and B)`. Recognizing that shape lets one short line stand in for what would
+ * otherwise read as one "outside these times" clause per window.
+ */
+function dateWindowExclusion(node: ExpressionNode): DateWindow | null {
+  if (node.kind !== 'unary' || node.operator !== '!') return null
+  const operand = node.operand
+  if (operand.kind !== 'binary' || operand.operator !== '&&') return null
+  const comparisons = flattenBinary(operand, '&&').map(timeComparison)
+  if (comparisons.some((comparison) => !comparison)) return null
+  const list = comparisons as TimeComparison[]
+  const year = list.find((comparison) => comparison.name === 'year')
+  const month = list.find((comparison) => comparison.name === 'month')
+  const days = list.filter((comparison) => comparison.name === 'day')
+  if (!year || !month || days.length === 0) return null
+  if (year.operator !== '==' || month.operator !== '==') return null
+  if (new Set(list.map((comparison) => comparison.timezone)).size !== 1) {
+    return null
+  }
+  let startDay = 1
+  let endDay = 31
+  for (const day of days) {
+    switch (day.operator) {
+      case '>=':
+        startDay = Math.max(startDay, day.value)
+        break
+      case '>':
+        startDay = Math.max(startDay, day.value + 1)
+        break
+      case '<':
+        endDay = Math.min(endDay, day.value - 1)
+        break
+      case '<=':
+        endDay = Math.min(endDay, day.value)
+        break
+      case '==':
+        startDay = day.value
+        endDay = day.value
+        break
+      default:
+        return null
+    }
+  }
+  if (startDay > endDay) return null
+  return { year: year.value, month: month.value, startDay, endDay }
+}
+
+function describeDateWindows(
+  windows: DateWindow[],
+  t: Translate,
+  locale: string
+): string {
+  const sharedYear = windows.every((window) => window.year === windows[0].year)
+  const dates = windows.map((window) => {
+    const days =
+      window.startDay === window.endDay
+        ? String(window.startDay)
+        : t('{{start}}–{{end}}', {
+            start: window.startDay,
+            end: window.endDay,
+          })
+    const date = `${window.month}/${days}`
+    return sharedYear ? date : `${window.year}/${date}`
+  })
+  const list = new Intl.ListFormat(toIntlLocale(locale), {
+    style: 'narrow',
+    type: 'conjunction',
+  }).format(dates)
+  return sharedYear
+    ? t('{{year}}: {{dates}}', { year: windows[0].year, dates: list })
+    : list
 }
 
 function describeTimeRange(
@@ -177,7 +260,13 @@ function describeBillingCondition(
   const parts: Description[] = []
   if (node.operator === '&&') {
     const ranges = new Map<string, TimeComparison[]>()
+    const dateWindows: DateWindow[] = []
     for (const part of nodes) {
+      const window = dateWindowExclusion(part)
+      if (window) {
+        dateWindows.push(window)
+        continue
+      }
       const comparison = timeComparison(part)
       if (comparison) {
         const key = `${comparison.name}:${comparison.timezone}`
@@ -195,6 +284,15 @@ function describeBillingCondition(
       if (!description) return null
       parts.push(description)
     }
+    if (dateWindows.length > 0) {
+      const timezone = ranges.values().next().value?.[0]?.timezone ?? ''
+      parts.push({
+        text: describeDateWindows(dateWindows, t, locale),
+        kind: 'calendar',
+        timezone,
+        exclusion: true,
+      })
+    }
   } else {
     for (const part of nodes) {
       const description = describeBillingCondition(part, t, locale)
@@ -205,11 +303,36 @@ function describeBillingCondition(
   const zones = [...new Set(parts.map((part) => part.timezone).filter(Boolean))]
   if (parts.length === 0 || zones.length > 1) return null
   const timezone = zones[0] ?? ''
+
+  // Date windows read as one clause after the times they carve out of, so they
+  // are joined separately instead of as another "and".
+  const exclusions = parts.filter((part) => part.exclusion)
+  const rest = parts.filter((part) => !part.exclusion)
+  if (rest.length === 0) return null
+  const described = describeParts(rest, node.operator, t, timezone)
+  if (!described) return null
+  if (exclusions.length === 0) return described
+  return {
+    text: t('{{condition}}, excluding {{excluded}}', {
+      condition: described.text,
+      excluded: exclusions.map((part) => part.text).join(', '),
+    }),
+    kind: 'combined',
+    timezone,
+  }
+}
+
+function describeParts(
+  parts: Description[],
+  operator: string,
+  t: Translate,
+  timezone: string
+): Description | null {
   if (parts.length === 1) return parts[0]
   const calendars = parts.filter((part) => part.kind === 'calendar')
   const clocks = parts.filter((part) => part.kind === 'clock')
   if (
-    node.operator === '&&' &&
+    operator === '&&' &&
     parts.length === 2 &&
     calendars.length === 1 &&
     clocks.length === 1
@@ -221,23 +344,21 @@ function describeBillingCondition(
     }
   }
   const separator =
-    node.operator === '&&'
-      ? '{{first}} and {{second}}'
-      : '{{first}} or {{second}}'
+    operator === '&&' ? '{{first}} and {{second}}' : '{{first}} or {{second}}'
   let text =
-    node.operator === '&&' && parts[0].disjunction
+    operator === '&&' && parts[0].disjunction
       ? `(${parts[0].text})`
       : parts[0].text
   for (const part of parts.slice(1)) {
     const second =
-      node.operator === '&&' && part.disjunction ? `(${part.text})` : part.text
+      operator === '&&' && part.disjunction ? `(${part.text})` : part.text
     text = t(separator, { first: text, second })
   }
   return {
     text,
     kind: clocks.length === parts.length ? 'clock' : 'combined',
     timezone,
-    disjunction: node.operator === '||',
+    disjunction: operator === '||',
   }
 }
 

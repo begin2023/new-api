@@ -38,6 +38,7 @@ import { StaticDataTable } from '@/components/data-table'
 import { sideDrawerContentClassName } from '@/components/drawer-layout'
 import { GroupBadge } from '@/components/group-badge'
 import { PublicLayout } from '@/components/layout'
+import { StatusBadge } from '@/components/status-badge'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -56,6 +57,8 @@ import {
   getSuccessRateTextClass,
 } from '@/features/performance-metrics/lib/format'
 import { PluginIcon } from '@/features/task-plugins/components/plugin-icon'
+import { useIsAdmin } from '@/hooks/use-admin'
+import { formatBillingCurrencyFromUSD } from '@/lib/currency'
 import { getLobeIcon } from '@/lib/lobe-icon'
 import { requireServerSuccess } from '@/lib/server-error-message'
 import { cn } from '@/lib/utils'
@@ -94,6 +97,10 @@ import {
   taskTierConditions,
   pricingDisplayFallbackKey,
 } from '../lib/task-price-display'
+import {
+  VENDOR_PRICE_REFERENCES,
+  type VendorWindowPrice,
+} from '../lib/vendor-price-reference'
 import type {
   ModelCapability,
   PriceType,
@@ -267,17 +274,24 @@ function OverviewMetric(props: {
 
 function OverviewSummaryGrid(props: { model: PricingModel }) {
   const { t } = useTranslation()
+  const isAdmin = useIsAdmin()
   const metricsQuery = useQuery({
     queryKey: ['perf-metrics', props.model.model_name],
     queryFn: async () =>
       requireServerSuccess(await getPerfMetrics(props.model.model_name, 24)),
+    enabled: isAdmin,
     staleTime: 60 * 1000,
+    retry: false,
   })
 
   const summary = metricsQuery.data?.data.summary
   const successRate = summary?.success_rate ?? Number.NaN
   const avgTps = summary?.avg_tps ?? 0
   const avgLatency = summary?.avg_latency_ms ?? 0
+
+  // Availability and throughput are operational data, so a visitor never sees
+  // them, not even an empty placeholder.
+  if (!isAdmin) return null
 
   return (
     <div className='bg-muted/20 grid overflow-hidden rounded-lg border sm:grid-cols-3 sm:divide-x'>
@@ -630,6 +644,90 @@ function ModelHeader(props: { model: PricingModel }) {
         </p>
       )}
     </header>
+  )
+}
+
+// ----------------------------------------------------------------------------
+// Vendor price comparison (what the same tokens cost from the vendor)
+// ----------------------------------------------------------------------------
+
+function VendorPriceComparison(props: { model: PricingModel }) {
+  const { t } = useTranslation()
+  const reference = VENDOR_PRICE_REFERENCES[props.model.model_name || '']
+  if (!reference) return null
+
+  const money = (value: number) =>
+    formatBillingCurrencyFromUSD(value, {
+      digitsLarge: 4,
+      digitsSmall: 4,
+      abbreviate: false,
+    })
+  const prices = (price: VendorWindowPrice) =>
+    [price.input, price.output, price.cacheRead]
+      .filter((value): value is number => value != null)
+      .map(money)
+      .join(' / ')
+  const rows = [
+    { key: 'peak', label: t('Peak'), official: reference.peak },
+    { key: 'off_peak', label: t('Off-peak'), official: reference.offPeak },
+  ]
+  const headerClass = cn(
+    'text-muted-foreground py-2 text-xs font-medium whitespace-normal break-words'
+  )
+
+  return (
+    <section>
+      <div className='mb-3 flex flex-wrap items-center justify-between gap-2'>
+        <SectionTitle>{t('Vendor price comparison')}</SectionTitle>
+        <StatusBadge
+          label={t('{{multiplier}}× of the vendor price', {
+            multiplier: reference.multiplier,
+          })}
+          variant='success'
+          size='sm'
+          copyable={false}
+          showDot={false}
+        />
+      </div>
+      <StaticDataTable
+        className='rounded-lg border'
+        tableClassName='text-sm'
+        headerRowClassName='hover:bg-transparent'
+        data={rows}
+        getRowKey={(row) => row.key}
+        columns={[
+          {
+            id: 'tier',
+            header: t('Tier'),
+            className: headerClass,
+            cellClassName: 'text-muted-foreground py-2.5',
+            cell: (row) => row.label,
+          },
+          {
+            id: 'official',
+            header: `${reference.vendor} · ${t('Per 1M tokens')}`,
+            className: headerClass,
+            cellClassName: 'py-2.5 font-mono',
+            cell: (row) => prices(row.official),
+          },
+          {
+            id: 'ours',
+            header: t('Our price'),
+            className: `${headerClass} text-right`,
+            cellClassName: 'py-2.5 text-right font-mono',
+            cell: (row) =>
+              prices({
+                input: row.official.input * reference.multiplier,
+                output: row.official.output * reference.multiplier,
+                cacheRead:
+                  row.official.cacheRead == null
+                    ? undefined
+                    : row.official.cacheRead * reference.multiplier,
+              }),
+          },
+        ]}
+      />
+    </section>
   )
 }
 
@@ -1449,10 +1547,14 @@ type TabValue = (typeof TAB_VALUES)[number]
 
 const TAB_META: Record<
   TabValue,
-  { icon: React.ComponentType<{ className?: string }>; labelKey: string }
+  {
+    icon: React.ComponentType<{ className?: string }>
+    labelKey: string
+    adminOnly?: boolean
+  }
 > = {
   overview: { icon: Info, labelKey: 'Overview' },
-  performance: { icon: HeartPulse, labelKey: 'Performance' },
+  performance: { icon: HeartPulse, labelKey: 'Performance', adminOnly: true },
   api: { icon: Code2, labelKey: 'API' },
 }
 
@@ -1470,6 +1572,7 @@ export interface ModelDetailsContentProps {
 
 export function ModelDetailsContent(props: ModelDetailsContentProps) {
   const { t } = useTranslation()
+  const isAdmin = useIsAdmin()
   const showRechargePrice = props.showRechargePrice ?? false
 
   const isDynamic =
@@ -1477,6 +1580,9 @@ export function ModelDetailsContent(props: ModelDetailsContentProps) {
     Boolean(props.model.billing_expr)
 
   const simpleTaskPricing = hasSimpleTaskPricing(props.model)
+  const visibleTabs = TAB_VALUES.filter(
+    (value) => !TAB_META[value].adminOnly || isAdmin
+  )
   const taskTiers = getTaskPricingDisplayTiers(
     props.model.billing_expr,
     props.model.billing_usage_schema
@@ -1491,8 +1597,13 @@ export function ModelDetailsContent(props: ModelDetailsContentProps) {
       <ModelHeader model={props.model} />
 
       <Tabs defaultValue='overview' className='gap-4'>
-        <TabsList className='bg-muted/60 grid w-full grid-cols-3 gap-1 rounded-lg p-1 group-data-horizontal/tabs:h-auto'>
-          {TAB_VALUES.map((value) => {
+        <TabsList
+          className='bg-muted/60 grid w-full grid-cols-3 gap-1 rounded-lg p-1 group-data-horizontal/tabs:h-auto'
+          style={{
+            gridTemplateColumns: `repeat(${visibleTabs.length}, minmax(0, 1fr))`,
+          }}
+        >
+          {visibleTabs.map((value) => {
             const Icon = TAB_META[value].icon
             return (
               <TabsTrigger
@@ -1521,6 +1632,7 @@ export function ModelDetailsContent(props: ModelDetailsContentProps) {
                 showRechargePrice={showRechargePrice}
               />
             )}
+            <VendorPriceComparison model={props.model} />
             {isDynamic && !simpleTaskPricing && (
               <DynamicPricingBreakdown
                 billingExpr={props.model.billing_expr}
@@ -1548,7 +1660,7 @@ export function ModelDetailsContent(props: ModelDetailsContentProps) {
         </TabsContent>
 
         <TabsContent value='performance' className='outline-none'>
-          <ModelDetailsPerformance model={props.model} />
+          {isAdmin && <ModelDetailsPerformance model={props.model} />}
         </TabsContent>
 
         <TabsContent value='api' className='outline-none'>

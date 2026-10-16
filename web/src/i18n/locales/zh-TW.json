@@ -7299,6 +7299,12 @@
     "This will append 3 template rules (Codex CLI, Claude CLI and ClinePass per API key) to the existing rule list.": "這會在現有規則列表後附加 3 條範本規則（Codex CLI、Claude CLI 和 ClinePass 依 API Key 固定）。",
     "ClinePass subscription account": "ClinePass 訂閱帳號",
     "{{remaining}} / {{total}} left": "剩餘 {{remaining}} / {{total}}",
-    "This will append the template rules that are not in the list yet (Codex CLI, Claude CLI and ClinePass per API key).": "只會在現有規則列表後追加尚未存在的模板規則（Codex CLI、Claude CLI 和 ClinePass 按 API Key 固定）。"
+    "This will append the template rules that are not in the list yet (Codex CLI, Claude CLI and ClinePass per API key).": "只會在現有規則列表後追加尚未存在的模板規則（Codex CLI、Claude CLI 和 ClinePass 按 API Key 固定）。",
+    "Vendor price comparison": "官方價格對比",
+    "{{multiplier}}× of the vendor price": "官方價的 {{multiplier}} 倍",
+    "Off-peak": "離峰時段",
+    "Our price": "本站價格",
+    "{{condition}}, excluding {{excluded}}": "{{condition}}，不含 {{excluded}}",
+    "{{year}}: {{dates}}": "{{year}} 年：{{dates}}"
   }
 }

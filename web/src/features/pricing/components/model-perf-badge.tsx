@@ -41,7 +41,6 @@ export interface ModelPerfBadgeProps extends React.HTMLAttributes<HTMLDivElement
 }
 
 const STATUS_SAMPLE_LIMIT = 24
-
 export const ModelPerfBadge = memo(function ModelPerfBadge(
   props: ModelPerfBadgeProps
 ) {
