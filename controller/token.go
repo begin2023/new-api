@@ -341,6 +341,10 @@ func AddToken(c *gin.Context) {
 		token.CrossGroupRetry = false
 		_ = token.SetAutoGroups(nil)
 	}
+	if token.MaxConcurrency < 0 {
+		common.ApiErrorT(c, "Concurrency limit cannot be negative")
+		return
+	}
 	key, err := common.GenerateKey()
 	if err != nil {
 		common.ApiErrorT(c, "Failed to generate token")
@@ -362,6 +366,7 @@ func AddToken(c *gin.Context) {
 		Group:              token.Group,
 		CrossGroupRetry:    token.CrossGroupRetry,
 		AutoGroups:         token.AutoGroups,
+		MaxConcurrency:     token.MaxConcurrency,
 	}
 	cleanToken.AllowUserQuotaQuery = request.AllowUserQuotaQuery == nil || *request.AllowUserQuotaQuery
 	err = cleanToken.Insert()
@@ -433,6 +438,10 @@ func UpdateToken(c *gin.Context) {
 		common.ApiError(c, err)
 		return
 	}
+	if token.MaxConcurrency < 0 {
+		common.ApiErrorT(c, "Concurrency limit cannot be negative")
+		return
+	}
 	params["name"] = cleanToken.Name
 	previous := *cleanToken
 	if token.Status == common.TokenStatusEnabled {
@@ -461,6 +470,7 @@ func UpdateToken(c *gin.Context) {
 		}
 		cleanToken.Group = token.Group
 		cleanToken.CrossGroupRetry = token.CrossGroupRetry
+		cleanToken.MaxConcurrency = token.MaxConcurrency
 		if token.Group != "auto" {
 			cleanToken.CrossGroupRetry = false
 			_ = cleanToken.SetAutoGroups(nil)
@@ -495,6 +505,7 @@ func UpdateToken(c *gin.Context) {
 			{"allow_user_quota_query", previous.AllowUserQuotaQuery != cleanToken.AllowUserQuotaQuery},
 			{"group", previous.Group != cleanToken.Group},
 			{"cross_group_retry", previous.CrossGroupRetry != cleanToken.CrossGroupRetry},
+			{"max_concurrency", previous.MaxConcurrency != cleanToken.MaxConcurrency},
 			{"auto_groups", previous.AutoGroups != cleanToken.AutoGroups},
 		} {
 			if field.changed {

@@ -727,6 +727,36 @@ export function ApiKeysMutateDrawer({
 
                     <FormField
                       control={form.control}
+                      name='max_concurrency'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('Max Concurrency')}</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type='number'
+                              min={0}
+                              step={1}
+                              placeholder='0'
+                              onChange={(e) =>
+                                field.onChange(
+                                  Number.parseInt(e.target.value, 10) || 0
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t(
+                              'Maximum concurrent requests allowed for this API key. 0 means unlimited.'
+                            )}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
                       name='allow_ips'
                       render={({ field }) => (
                         <FormItem>

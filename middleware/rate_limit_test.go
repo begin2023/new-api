@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/i18n"
 	"github.com/alicebob/miniredis/v2"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
@@ -289,4 +290,166 @@ func TestGlobalWebRateLimitCountsFrontendFilesInStaticBucket(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, "1", webCount)
 	})
+}
+
+// A token's concurrency limit holds a slot until the response, including a
+// stream, finishes, and the next request is admitted only after the slot is
+// released. The Redis counter must not be left behind after the release.
+func TestTokenConcurrencyLimitHoldsAndReleasesSlots(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	require.NoError(t, i18n.Init())
+
+	for _, redisEnabled := range []bool{false, true} {
+		name := "memory"
+		var redisServer *miniredis.Miniredis
+		if redisEnabled {
+			name = "redis"
+		}
+		t.Run(name, func(t *testing.T) {
+			previousRedisEnabled := common.RedisEnabled
+			common.RedisEnabled = false
+			t.Cleanup(func() { common.RedisEnabled = previousRedisEnabled })
+			if redisEnabled {
+				redisServer, _ = useRateLimitMiniRedis(t)
+			}
+
+			entered := make(chan struct{}, 2)
+			release := make(chan struct{})
+			router := gin.New()
+			router.GET("/relay",
+				func(c *gin.Context) {
+					c.Set(ContextTokenMaxConcurrency, 1)
+					c.Set("token_id", 7001)
+					c.Next()
+				},
+				TokenConcurrencyLimit(),
+				func(c *gin.Context) {
+					entered <- struct{}{}
+					<-release
+					c.Status(http.StatusNoContent)
+				},
+			)
+
+			first := httptest.NewRecorder()
+			firstDone := make(chan struct{})
+			go func() {
+				defer close(firstDone)
+				router.ServeHTTP(first, httptest.NewRequest(http.MethodGet, "/relay", nil))
+			}()
+			<-entered
+
+			limited := performRateLimitRequest(router, "/relay", "")
+			assert.Equal(t, http.StatusTooManyRequests, limited.Code)
+			assert.Equal(t, "1", limited.Header().Get("Retry-After"))
+
+			close(release)
+			<-firstDone
+			assert.Equal(t, http.StatusNoContent, first.Code)
+
+			assert.Equal(t, http.StatusNoContent, performRateLimitRequest(router, "/relay", "").Code)
+			if redisEnabled {
+				assert.False(t, redisServer.Exists(redisTokenConcurrencyKey(7001)),
+					"a released slot must not leave its Redis counter behind")
+			}
+		})
+	}
+}
+
+// A zero limit means unlimited, each token counts on its own, and a request
+// that ends by aborting releases its slot like a normal response.
+func TestTokenConcurrencyLimitIgnoresZeroAndSeparatesTokens(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	require.NoError(t, i18n.Init())
+	previousRedisEnabled := common.RedisEnabled
+	common.RedisEnabled = false
+	t.Cleanup(func() { common.RedisEnabled = previousRedisEnabled })
+
+	entered := make(chan struct{}, 4)
+	release := make(chan struct{})
+	newRouter := func(limit int) *gin.Engine {
+		router := gin.New()
+		router.GET("/relay",
+			func(c *gin.Context) {
+				c.Set(ContextTokenMaxConcurrency, limit)
+				c.Set("token_id", 7002)
+				c.Next()
+			},
+			TokenConcurrencyLimit(),
+			func(c *gin.Context) {
+				entered <- struct{}{}
+				<-release
+				c.Status(http.StatusNoContent)
+			},
+		)
+		return router
+	}
+
+	// limit 0: two overlapping requests are both admitted.
+	unlimited := newRouter(0)
+	firstDone := make(chan struct{})
+	go func() {
+		defer close(firstDone)
+		unlimited.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/relay", nil))
+	}()
+	<-entered
+	secondDone := make(chan struct{})
+	go func() {
+		defer close(secondDone)
+		unlimited.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/relay", nil))
+	}()
+	<-entered
+	close(release)
+	<-firstDone
+	<-secondDone
+
+	// limit 1 with another token: the in-flight request of a different token
+	// must not consume this token's slot.
+	blocked := make(chan struct{})
+	admitted := make(chan struct{})
+	tokenRouter := gin.New()
+	tokenRouter.GET("/relay",
+		func(c *gin.Context) {
+			c.Set(ContextTokenMaxConcurrency, 1)
+			if c.Query("token") == "other" {
+				c.Set("token_id", 7003)
+			} else {
+				c.Set("token_id", 7002)
+			}
+			c.Next()
+		},
+		TokenConcurrencyLimit(),
+		func(c *gin.Context) {
+			if c.Query("token") != "other" {
+				admitted <- struct{}{}
+				<-blocked
+			}
+			c.Status(http.StatusNoContent)
+		},
+	)
+	firstDone = make(chan struct{})
+	go func() {
+		defer close(firstDone)
+		tokenRouter.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/relay", nil))
+	}()
+	<-admitted
+	assert.Equal(t, http.StatusTooManyRequests,
+		performRateLimitRequest(tokenRouter, "/relay", "").Code)
+	assert.Equal(t, http.StatusNoContent,
+		performRateLimitRequest(tokenRouter, "/relay?token=other", "").Code)
+	close(blocked)
+	<-firstDone
+
+	// A handler that aborts without writing a response still frees its slot.
+	aborting := gin.New()
+	aborting.GET("/relay",
+		func(c *gin.Context) {
+			c.Set(ContextTokenMaxConcurrency, 1)
+			c.Set("token_id", 7002)
+			c.Next()
+		},
+		TokenConcurrencyLimit(),
+		func(c *gin.Context) { c.AbortWithStatus(http.StatusBadRequest) },
+	)
+	assert.Equal(t, http.StatusBadRequest, performRateLimitRequest(aborting, "/relay", "").Code)
+	assert.Equal(t, http.StatusBadRequest, performRateLimitRequest(aborting, "/relay", "").Code)
 }
