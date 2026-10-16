@@ -29,6 +29,7 @@ import type {
   ChannelBalanceResponse,
   ChannelOpsResponse,
   ChannelTestResponse,
+  ClinePassUsage,
   CopyChannelParams,
   CopyChannelResponse,
   FetchModelsResponse,
@@ -703,20 +704,6 @@ export async function getPrefillGroups(
 // ============================================================================
 // ClinePass Accounts
 // ============================================================================
-
-export type ClinePassWindow = {
-  type: string
-  percent_used: number
-  resets_at: number
-}
-
-export type ClinePassUsage = {
-  windows: ClinePassWindow[] | null
-  balance?: string
-  exhausted_until?: number
-  updated_time: number
-  error?: string
-}
 
 export type ClinePassChannel = {
   id: number

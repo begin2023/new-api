@@ -22,47 +22,25 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Dialog } from '@/components/dialog'
-import { StatusBadge, type StatusVariant } from '@/components/status-badge'
+import { StatusBadge } from '@/components/status-badge'
 import { Button } from '@/components/ui/button'
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@/components/ui/empty'
-import { Progress } from '@/components/ui/progress'
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from '@/components/ui/empty'
 import { Spinner } from '@/components/ui/spinner'
-import { toIntlLocale } from '@/i18n/languages'
-import { formatTimestampRelative } from '@/lib/format'
 import { handleServerError } from '@/lib/handle-server-error'
 import { createServerError } from '@/lib/server-error-message'
-import { cn } from '@/lib/utils'
 
 import {
   getClinePassChannels,
   refreshClinePassChannels,
   type ClinePassChannel,
-  type ClinePassWindow,
 } from '../../api'
 import { CHANNEL_STATUS, CHANNEL_STATUS_CONFIG } from '../../constants'
-
-// clinePassWindows is the window set ClinePass reports, in the order it is
-// shown, so an account missing one says so instead of hiding the row.
-const CLINE_PASS_WINDOWS = [
-  { type: 'five_hour', label: '5-hour window' },
-  { type: 'weekly', label: 'Weekly window' },
-  { type: 'monthly', label: 'Monthly window' },
-] as const
-
-function windowOf(
-  usage: ClinePassChannel['usage'],
-  type: string
-): ClinePassWindow | undefined {
-  return usage?.windows?.find((window) => window.type === type)
-}
-
-// usageTone keeps the bar readable at a glance: what is close to its limit is
-// what an administrator has to act on.
-function usageTone(percent: number): { color: string; variant: StatusVariant } {
-  if (percent >= 100) return { color: 'text-rose-500', variant: 'danger' }
-  if (percent >= 80) return { color: 'text-amber-500', variant: 'warning' }
-  return { color: 'text-emerald-500', variant: 'success' }
-}
+import { ClinePassUsageDetails } from '../clinepass-usage'
 
 type ClinePassUsageDialogProps = {
   open: boolean
@@ -70,15 +48,10 @@ type ClinePassUsageDialogProps = {
 }
 
 export function ClinePassUsageDialog(props: ClinePassUsageDialogProps) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const [accounts, setAccounts] = useState<ClinePassChannel[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
-
-  const locale = toIntlLocale(i18n.resolvedLanguage || i18n.language)
-  const percentFormatter = new Intl.NumberFormat(locale, {
-    maximumFractionDigits: 1,
-  })
 
   const load = useCallback(async () => {
     setIsLoading(true)
@@ -142,13 +115,7 @@ export function ClinePassUsageDialog(props: ClinePassUsageDialogProps) {
     content = (
       <div className='grid gap-3 sm:grid-cols-2'>
         {accounts.map((account) => (
-          <ClinePassAccountCard
-            key={account.id}
-            account={account}
-            percentFormatter={percentFormatter}
-            locale={locale}
-            t={t}
-          />
+          <ClinePassAccountCard key={account.id} account={account} />
         ))}
       </div>
     )
@@ -175,18 +142,10 @@ export function ClinePassUsageDialog(props: ClinePassUsageDialogProps) {
   )
 }
 
-type ClinePassAccountCardProps = {
-  account: ClinePassChannel
-  percentFormatter: Intl.NumberFormat
-  locale?: string
-  t: ReturnType<typeof useTranslation>['t']
-}
-
-function ClinePassAccountCard(props: ClinePassAccountCardProps) {
-  const { account, percentFormatter, locale, t } = props
-  const status = CHANNEL_STATUS_CONFIG[
-    account.status as keyof typeof CHANNEL_STATUS_CONFIG
-  ]
+function ClinePassAccountCard({ account }: { account: ClinePassChannel }) {
+  const { t } = useTranslation()
+  const status =
+    CHANNEL_STATUS_CONFIG[account.status as keyof typeof CHANNEL_STATUS_CONFIG]
   const outOfWindow = account.status === CHANNEL_STATUS.AUTO_DISABLED
 
   return (
@@ -204,79 +163,8 @@ function ClinePassAccountCard(props: ClinePassAccountCardProps) {
         />
       </div>
 
-      <div className='flex flex-col gap-2'>
-        {CLINE_PASS_WINDOWS.map((known) => {
-          const window = windowOf(account.usage, known.type)
-          if (!window) {
-            return (
-              <div key={known.type} className='flex flex-col gap-1'>
-                <div className='flex items-center justify-between text-xs'>
-                  <span className='text-muted-foreground'>{t(known.label)}</span>
-                  <span className='text-muted-foreground'>
-                    {t('Not reported')}
-                  </span>
-                </div>
-                <Progress value={0} aria-label={t(known.label)} />
-              </div>
-            )
-          }
-          const tone = usageTone(window.percent_used)
-          return (
-            <div key={known.type} className='flex flex-col gap-1'>
-              <div className='flex items-center justify-between gap-2 text-xs'>
-                <span className='text-muted-foreground'>{t(known.label)}</span>
-                <span className='flex items-center gap-2'>
-                  {window.resets_at > 0 && (
-                    <span className='text-muted-foreground'>
-                      {t('Resets {{time}}', {
-                        time: formatTimestampRelative(
-                          window.resets_at,
-                          'seconds',
-                          locale
-                        ),
-                      })}
-                    </span>
-                  )}
-                  <span className={cn('font-medium', tone.color)}>
-                    {percentFormatter.format(window.percent_used)}%
-                  </span>
-                </span>
-              </div>
-              <Progress
-                value={Math.min(100, Math.max(0, window.percent_used))}
-                aria-label={t(known.label)}
-                className={cn(
-                  'w-full [&_[data-slot=progress-indicator]]:bg-current',
-                  tone.color
-                )}
-              />
-            </div>
-          )
-        })}
-      </div>
+      <ClinePassUsageDetails usage={account.usage} />
 
-      <div className='text-muted-foreground flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs'>
-        <span>
-          {t('Balance')}: {account.usage?.balance || '—'}
-        </span>
-        {account.usage?.updated_time ? (
-          <span>
-            {t('Updated {{time}}', {
-              time: formatTimestampRelative(
-                account.usage.updated_time,
-                'seconds',
-                locale
-              ),
-            })}
-          </span>
-        ) : null}
-      </div>
-
-      {account.usage?.error ? (
-        <p className='text-destructive text-xs break-words'>
-          {account.usage.error}
-        </p>
-      ) : null}
       {!account.usage?.error && account.status_reason ? (
         <p className='text-muted-foreground text-xs break-words'>
           {account.status_reason}

@@ -258,6 +258,20 @@ test('changing built-in providers updates server-provided URL placeholders witho
   )
 })
 
+test('the ClinePass provider presets the account address, model and chat route', async () => {
+  const user = userEvent.setup()
+  render(<ConfigurationHarness />)
+  await user.click(screen.getByRole('option', { name: /^ClinePass / }))
+  expect(screen.getByRole('textbox', { name: 'Base URL' })).toHaveValue(
+    'https://api.cline.bot/api'
+  )
+  expect(screen.getByText('Routes: 1')).toBeVisible()
+  // The label follows the address, so it also names a saved account.
+  expect(
+    screen.getByRole('button', { name: 'Change provider' })
+  ).toHaveAttribute('title', 'ClinePass')
+})
+
 test.each([
   {
     type: 43,

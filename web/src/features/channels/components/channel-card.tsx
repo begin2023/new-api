@@ -28,6 +28,7 @@ import { isTagAggregateRow, parseGroupsList } from '../lib'
 import type { Channel } from '../types'
 import { ChannelRowActionsLayoutContext } from './channel-row-actions-context'
 import { useChannels } from './channels-provider'
+import { ClinePassUsageDetails } from './clinepass-usage'
 
 const SENSITIVE_MASK = '••••'
 
@@ -60,6 +61,9 @@ function ChannelCardComponent({
   }
 
   const groups = parseGroupsList(row.original.group ?? '')
+  const clinePassUsage = isTagRow
+    ? undefined
+    : row.original.channel_info?.clinepass
 
   const selectCell = renderCell('select')
   const typeCell = renderCell('type')
@@ -122,6 +126,12 @@ function ChannelCardComponent({
               <span className={labelClass}>{t('Weight')}</span>
               {weightCell}
             </div>
+            {clinePassUsage && (
+              <div className='col-span-3 flex flex-col gap-2'>
+                <span className={labelClass}>{t('ClinePass')}</span>
+                <ClinePassUsageDetails usage={clinePassUsage} />
+              </div>
+            )}
             <dl className='col-span-3 grid grid-cols-subgrid gap-y-1'>
               <div className='row-span-2 grid min-w-0 grid-rows-subgrid'>
                 <dt className={labelClass}>{t('Used / Remaining')}</dt>

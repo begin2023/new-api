@@ -54,6 +54,7 @@ import {
   getChannelPluginExtensions,
   LEGACY_TASK_PLUGIN_KEYS,
 } from '../../lib/channel-plugin-extensions'
+import { CLINE_PASS_PRESET, isClinePassPreset } from '../../lib/clinepass'
 import { ChannelTypeLogo } from '../channel-type-badge'
 
 type ChannelProviderPickerProps = {
@@ -175,6 +176,22 @@ export function ChannelProviderPicker(props: ChannelProviderPickerProps) {
           extensionSummary,
           searchText: `${option.value} ${option.label} ${t(option.label)} ${extensions.map((plugin) => `${plugin.name} ${plugin.key}`).join(' ')}`,
         })
+        // ClinePass accounts are Advanced Custom channels with a fixed base URL
+        // and chat route, offered as their own provider so one account can be
+        // added per subscription.
+        if (option.value === CHANNEL_TYPE_ADVANCED_CUSTOM) {
+          entries.push({
+            id: `builtin:${CHANNEL_TYPE_ADVANCED_CUSTOM}:${CLINE_PASS_PRESET}`,
+            label: t('ClinePass'),
+            target: {
+              kind: 'builtin',
+              type: CHANNEL_TYPE_ADVANCED_CUSTOM,
+              preset: CLINE_PASS_PRESET,
+            },
+            description: t('ClinePass subscription account'),
+            searchText: `${CHANNEL_TYPE_ADVANCED_CUSTOM} clinepass cline pass ${t('ClinePass')}`,
+          })
+        }
       }
     }
     return entries.filter((entry) =>
@@ -205,6 +222,9 @@ export function ChannelProviderPicker(props: ChannelProviderPickerProps) {
   let currentProviderId: string | undefined
   if (props.currentProvider?.kind === 'builtin') {
     currentProviderId = `builtin:${props.currentProvider.type}`
+    if (props.currentProvider.preset) {
+      currentProviderId += `:${props.currentProvider.preset}`
+    }
   } else if (props.currentProvider?.kind === 'plugin') {
     currentProviderId = `plugin:${props.currentProvider.key}`
   }
@@ -289,7 +309,8 @@ export function ChannelProviderPicker(props: ChannelProviderPickerProps) {
                   className='data-selected:border-primary/50 data-selected:bg-primary/5 min-h-24 flex-col items-stretch justify-between gap-2.5 rounded-lg border p-3 md:min-h-32 [&>svg]:hidden'
                 >
                   {option.target.kind === 'builtin' &&
-                    option.target.type === CHANNEL_TYPE_ADVANCED_CUSTOM && (
+                    option.target.type === CHANNEL_TYPE_ADVANCED_CUSTOM &&
+                    !isClinePassPreset(option.target.preset) && (
                       <AutoGroupFlowBorder
                         shouldReduceMotion={
                           shouldReduceMotion || props.disabled

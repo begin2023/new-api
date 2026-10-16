@@ -86,6 +86,7 @@ import {
   channelsQueryKeys,
   formatResponseTime,
   handleTestChannel,
+  isClinePassBaseURL,
 } from '../../lib'
 import type {
   Channel,
@@ -325,7 +326,7 @@ function ChannelTestDialogContent({
   const [endpointType, setEndpointType] = useState('auto')
   // ClinePass models reason before they answer, so the test's 16-token
   // non-stream probe comes back empty; the test streams for them by default.
-  const defaultStreamTest = /cline\.bot/i.test(currentRow.base_url ?? '')
+  const defaultStreamTest = isClinePassBaseURL(currentRow.base_url)
   const [isStreamTest, setIsStreamTest] = useState(defaultStreamTest)
   const [searchTerm, setSearchTerm] = useState('')
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({})

@@ -561,9 +561,12 @@ test('custom providers have their own tab and keep the search when switching cat
   expect(within(tabs).getAllByRole('tab')).toHaveLength(5)
   await user.click(within(tabs).getByRole('tab', { name: 'Custom' }))
   const panel = screen.getByRole('tabpanel', { name: 'Custom' })
-  expect(within(panel).getAllByRole('option')).toHaveLength(2)
+  expect(within(panel).getAllByRole('option')).toHaveLength(3)
   expect(
     within(panel).getByRole('option', { name: 'Advanced Custom Built-in #58' })
+  ).toBeVisible()
+  expect(
+    within(panel).getByRole('option', { name: 'ClinePass Built-in #58' })
   ).toBeVisible()
   expect(
     within(panel).getByRole('option', { name: 'Custom Built-in #8' })
@@ -586,7 +589,8 @@ test('custom providers have their own tab and keep the search when switching cat
   expect(screen.queryByRole('option')).not.toBeInTheDocument()
   await user.click(within(tabs).getByRole('tab', { name: 'Custom' }))
   expect(screen.getByRole('combobox')).toHaveValue('58')
-  expect(screen.getAllByRole('option')).toHaveLength(1)
+  // The type number also matches the ClinePass preset that shares it.
+  expect(screen.getAllByRole('option')).toHaveLength(2)
   expect(
     screen.getByRole('option', { name: 'Advanced Custom Built-in #58' })
   ).toBeVisible()
@@ -864,4 +868,34 @@ test('an empty plugin filter reports that no plugins can be bound', async () => 
   await user.click(screen.getByRole('tab', { name: 'Plugins' }))
   expect(screen.getByText('No plugins available for binding')).toBeVisible()
   expect(screen.queryByRole('option')).not.toBeInTheDocument()
+})
+
+test('ClinePass is offered next to Advanced Custom as its own preset', async () => {
+  const user = userEvent.setup()
+  const select = vi.fn()
+  render(
+    <ChannelProviderPicker
+      isCreating
+      plugins={[]}
+      canBindPlugin
+      loading={false}
+      failed={false}
+      disabled={false}
+      onRetry={vi.fn()}
+      onSelect={select}
+    />
+  )
+  await user.click(screen.getByRole('tab', { name: 'Custom' }))
+  // Both stay selectable, so one account can be added per subscription.
+  expect(
+    screen.getByRole('option', { name: 'Advanced Custom Built-in #58' })
+  ).toBeVisible()
+  await user.click(
+    screen.getByRole('option', { name: 'ClinePass Built-in #58' })
+  )
+  expect(select).toHaveBeenLastCalledWith({
+    kind: 'builtin',
+    type: 58,
+    preset: 'clinepass',
+  })
 })

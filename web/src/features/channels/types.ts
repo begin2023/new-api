@@ -22,6 +22,24 @@ import { z } from 'zod'
 // Channel Schema & Types
 // ============================================================================
 
+export const clinePassWindowSchema = z.object({
+  type: z.string(),
+  percent_used: z.number().default(0),
+  resets_at: z.number().default(0),
+})
+
+export const clinePassUsageSchema = z.object({
+  // Cline omits the whole window list when the account has no subscription.
+  windows: z.array(clinePassWindowSchema).nullish(),
+  balance: z.string().optional(),
+  exhausted_until: z.number().optional(),
+  updated_time: z.number().default(0),
+  error: z.string().optional(),
+})
+
+export type ClinePassWindow = z.infer<typeof clinePassWindowSchema>
+export type ClinePassUsage = z.infer<typeof clinePassUsageSchema>
+
 export const channelInfoSchema = z.object({
   is_multi_key: z.boolean().default(false),
   multi_key_size: z.number().default(0),
@@ -30,6 +48,7 @@ export const channelInfoSchema = z.object({
   multi_key_disabled_time: z.record(z.string(), z.number()).optional(),
   multi_key_polling_index: z.number().default(0),
   multi_key_mode: z.enum(['random', 'polling']).default('random'),
+  clinepass: clinePassUsageSchema.optional(),
 })
 
 export type ChannelInfo = z.infer<typeof channelInfoSchema>

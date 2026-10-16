@@ -170,6 +170,7 @@ import {
   channelFormSchema,
   channelsQueryKeys,
   getAdvancedCustomStats,
+  stringifyAdvancedCustomConfig,
   transformChannelToFormDefaults,
   type ChannelFormValues,
   deduplicateKeys,
@@ -197,6 +198,13 @@ import {
   supportsNewAPIUpstream,
 } from '../../lib/channel-plugin-extensions'
 import { getChannelTypeConfig } from '../../lib/channel-type-config'
+import {
+  CLINE_PASS_BASE_URL,
+  CLINE_PASS_DEFAULT_MODEL,
+  clinePassAdvancedConfig,
+  isClinePassBaseURL,
+  isClinePassPreset,
+} from '../../lib/clinepass'
 import {
   collectInvalidStatusCodeEntries,
   collectNewDisallowedStatusCodeRedirects,
@@ -792,7 +800,10 @@ export function ChannelMutateDrawer({
   const providerLabel =
     boundTaskPlugin?.name ||
     (currentType === CHANNEL_TYPE_TASK_PLUGIN && currentTaskPluginKey) ||
-    t(currentTypeLabel)
+    (currentType === CHANNEL_TYPE_ADVANCED_CUSTOM &&
+    isClinePassBaseURL(formValues.base_url)
+      ? t('ClinePass')
+      : t(currentTypeLabel))
 
   const selectProvider = useCallback(
     (target: ChannelProviderTarget) => {
@@ -800,7 +811,8 @@ export function ChannelMutateDrawer({
       if (
         (target.kind === 'builtin' &&
           providerTarget?.kind === 'builtin' &&
-          target.type === providerTarget.type) ||
+          target.type === providerTarget.type &&
+          target.preset === providerTarget.preset) ||
         (target.kind === 'plugin' &&
           providerTarget?.kind === 'plugin' &&
           target.key === providerTarget.key)
@@ -848,10 +860,30 @@ export function ChannelMutateDrawer({
         }
         form.setValue('type', target.type, { shouldDirty: true })
         if (!isEditing && !providerTarget && !form.getValues('name').trim()) {
-          const label = CHANNEL_TYPE_OPTIONS.find(
-            (option) => option.value === target.type
-          )?.label
-          form.setValue('name', label ? t(label) : `#${target.type}`)
+          if (isClinePassPreset(target.preset)) {
+            form.setValue('name', t('ClinePass'))
+          } else {
+            const label = CHANNEL_TYPE_OPTIONS.find(
+              (option) => option.value === target.type
+            )?.label
+            form.setValue('name', label ? t(label) : `#${target.type}`)
+          }
+        }
+        if (isClinePassPreset(target.preset)) {
+          // A ClinePass account only needs its key: the base URL, the chat
+          // route and a known model slug are the same for every subscription.
+          form.setValue('base_url', CLINE_PASS_BASE_URL, {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+          form.setValue('models', CLINE_PASS_DEFAULT_MODEL, {
+            shouldDirty: true,
+          })
+          form.setValue(
+            'advanced_custom',
+            stringifyAdvancedCustomConfig(clinePassAdvancedConfig()),
+            { shouldDirty: true }
+          )
         }
       }
       setProviderTarget(target)
