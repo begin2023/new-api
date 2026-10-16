@@ -151,6 +151,19 @@ var channelAffinitySetting = ChannelAffinitySetting{
 			IncludeRuleName:       true,
 			UserAgentInclude:      nil,
 		},
+		{
+			// A key keeps to the account it started on, so a pool of subscription
+			// accounts serves one key from one account instead of spreading it over
+			// the pool on every request. "prefer" and not "strict": an account that
+			// runs out of window hands the key on instead of failing the request.
+			// Last in the list, so the session rules above keep their own traffic.
+			Name:              "clinepass per api key",
+			ModelRegex:        []string{".*"},
+			KeySources:        []ChannelAffinityKeySource{{Type: "context_int", Key: "token_id"}},
+			TTLSeconds:        604800,
+			SessionMode:       "prefer",
+			IncludeUsingGroup: true,
+		},
 	},
 }
 

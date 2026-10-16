@@ -465,3 +465,42 @@ func TestSessionRulesInheritOrOverrideGlobalDefault(t *testing.T) {
 		}
 	}
 }
+
+func TestDefaultRulesKeepOneKeyOnOneAccount(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	setting := operation_setting.GetChannelAffinitySetting()
+	require.True(t, setting.Enabled, "affinity has to be on for the pool to stick")
+
+	rec := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(rec)
+	ctx.Request = httptest.NewRequest(http.MethodPost, "/v1/chat/completions", nil)
+	// The key is the API token, so the rule has to read it off the context.
+	tokenID := int(time.Now().UnixNano()%1_000_000) + 1
+	ctx.Set("token_id", tokenID)
+
+	channelID, found := GetPreferredChannelByAffinity(ctx, "deepseek-v4.1-flash", "default")
+	require.False(t, found, "a key with no pin yet is not preferred anywhere")
+	meta, ok := getChannelAffinityMeta(ctx)
+	require.True(t, ok, "a built-in rule has to match a plain chat request")
+	require.Equal(t, "context_int", meta.KeySourceType)
+	require.Equal(t, "token_id", meta.KeySourceKey)
+	require.Equal(t, "prefer", RequestPolicy(ctx).SessionMode)
+	t.Cleanup(func() { ClearCurrentChannelAffinityCache(ctx) })
+
+	// A served request pins the key to the account that served it.
+	ctx.Set("channel_id", 4242)
+	RecordChannelAffinity(ctx, 4242)
+
+	channelID, found = GetPreferredChannelByAffinity(ctx, "deepseek-v4.1-flash", "default")
+	require.True(t, found)
+	require.Equal(t, 4242, channelID)
+
+	// Another model of the same subscription goes to the same account, and
+	// another group is a different pool.
+	channelID, found = GetPreferredChannelByAffinity(ctx, "glm-5.3", "default")
+	require.True(t, found)
+	require.Equal(t, 4242, channelID)
+	_, found = GetPreferredChannelByAffinity(ctx, "deepseek-v4.1-flash", "premium")
+	require.False(t, found)
+}

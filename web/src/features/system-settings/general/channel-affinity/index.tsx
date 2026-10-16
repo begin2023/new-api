@@ -119,12 +119,16 @@ export function ChannelAffinitySection(props: Props) {
       rules.map((r) => (r.name || '').trim()).filter((x) => x.length > 0)
     )
 
-    const templates = Object.values(RULE_TEMPLATES).map((tpl) => {
-      const base = cloneTemplate(tpl)
-      const name = makeUniqueName(existingNames, tpl.name)
-      existingNames.add(name)
-      return { ...base, name }
-    })
+    const templates = Object.values(RULE_TEMPLATES)
+      // A template that is already there, such as the built-in per-key rule,
+      // must not be appended a second time under a suffixed name.
+      .filter((tpl) => !existingNames.has(tpl.name))
+      .map((tpl) => {
+        const base = cloneTemplate(tpl)
+        const name = makeUniqueName(existingNames, tpl.name)
+        existingNames.add(name)
+        return { ...base, name }
+      })
 
     props.onRulesChange(serializeRules([...rules, ...templates]))
     toast.success(t('Templates appended'))
@@ -442,7 +446,7 @@ export function ChannelAffinitySection(props: Props) {
         onOpenChange={setFillTemplateDialogOpen}
         title={t('Fill Templates')}
         desc={t(
-          'This will append 3 template rules (Codex CLI, Claude CLI and ClinePass per API key) to the existing rule list.'
+          'This will append the template rules that are not in the list yet (Codex CLI, Claude CLI and ClinePass per API key).'
         )}
         handleConfirm={appendCliTemplates}
       />

@@ -7298,6 +7298,7 @@
     "ClinePass per API key": "ClinePass 按 API Key 固定",
     "This will append 3 template rules (Codex CLI, Claude CLI and ClinePass per API key) to the existing rule list.": "这会在现有规则列表后追加 3 条模板规则（Codex CLI、Claude CLI 和 ClinePass 按 API Key 固定）。",
     "ClinePass subscription account": "ClinePass 订阅账号",
-    "{{remaining}} / {{total}} left": "剩余 {{remaining}} / {{total}}"
+    "{{remaining}} / {{total}} left": "剩余 {{remaining}} / {{total}}",
+    "This will append the template rules that are not in the list yet (Codex CLI, Claude CLI and ClinePass per API key).": "只会在现有规则列表后追加尚未存在的模板规则（Codex CLI、Claude CLI 和 ClinePass 按 API Key 固定）。"
   }
 }
