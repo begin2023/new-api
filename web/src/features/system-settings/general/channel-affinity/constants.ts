@@ -86,6 +86,21 @@ function buildCodexPassHeadersTemplate() {
 export type RuleTemplate = Omit<AffinityRule, 'id'>
 
 export const RULE_TEMPLATES: Record<string, RuleTemplate> = {
+  clinePassPerKey: {
+    name: 'clinepass per api key',
+    // prefer, not strict: an account out of window has to hand the key on to
+    // the next one instead of failing the request.
+    session_mode: 'prefer',
+    model_regex: ['.*'],
+    path_regex: [],
+    key_sources: [{ type: 'context_int', key: 'token_id' }],
+    value_regex: '',
+    ttl_seconds: 604800,
+    skip_retry_on_failure: false,
+    include_using_group: true,
+    include_model_name: false,
+    include_rule_name: false,
+  },
   codexCli: {
     name: 'codex cli trace',
     model_regex: ['^gpt-.*$'],
