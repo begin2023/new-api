@@ -113,20 +113,22 @@ const clinePassCostScale = 1e8
 // plan that exposes none leaves the limits out instead of inventing numbers.
 func clinePassLimits(ctx context.Context, client *http.Client, key string) *model.ClinePassLimits {
 	var plan struct {
-		Entitlements struct {
-			ClinePass struct {
-				InferenceCapThreshold struct {
-					FiveHour int64 `json:"last5HoursUsageCostUSDPerUser"`
-					Weekly   int64 `json:"last7daysUsageCostUSDPerUser"`
-					Monthly  int64 `json:"last30daysUsageCostUSDPerUser"`
-				} `json:"inferenceCapThreshold"`
-			} `json:"cline_pass"`
-		} `json:"entitlements"`
+		Plan struct {
+			Entitlements struct {
+				ClinePass struct {
+					InferenceCapThreshold struct {
+						FiveHour int64 `json:"last5HoursUsageCostUSDPerUser"`
+						Weekly   int64 `json:"last7daysUsageCostUSDPerUser"`
+						Monthly  int64 `json:"last30daysUsageCostUSDPerUser"`
+					} `json:"inferenceCapThreshold"`
+				} `json:"cline_pass"`
+			} `json:"entitlements"`
+		} `json:"plan"`
 	}
 	if err := clinePassGet(ctx, client, key, "/users/me/plan", &plan); err != nil {
 		return nil
 	}
-	cap := plan.Entitlements.ClinePass.InferenceCapThreshold
+	cap := plan.Plan.Entitlements.ClinePass.InferenceCapThreshold
 	if cap.FiveHour <= 0 && cap.Weekly <= 0 && cap.Monthly <= 0 {
 		return nil
 	}

@@ -50,7 +50,8 @@ func TestFetchClinePassUsageReadsWindowsAndBalance(t *testing.T) {
 		case "/users/me":
 			_, _ = w.Write([]byte(`{"success":true,"data":{"clineUserId":"u-1"}}`))
 		case "/users/me/plan":
-			_, _ = w.Write([]byte(`{"success":true,"data":{"plan":{"displayName":"Cline Pass (Monthly)"},"entitlements":{"cline_pass":{"enabled":true,"inferenceCapThreshold":{"last5HoursUsageCostUSDPerUser":1000000000,"last7daysUsageCostUSDPerUser":2500000000,"last30daysUsageCostUSDPerUser":5000000000}}}}}`))
+			// The caps sit under the plan, beside its features, as Cline answers.
+			_, _ = w.Write([]byte(`{"success":true,"data":{"planHistoryId":"iph-1","plan":{"displayName":"Cline Pass (Monthly)","features":{"fee_dollars":0.61},"entitlements":{"cline_pass":{"enabled":true,"inferenceCapThreshold":{"last5HoursUsageCostUSDPerUser":1000000000,"last7daysUsageCostUSDPerUser":2500000000,"last30daysUsageCostUSDPerUser":5000000000}}}},"subscriptionId":"sub-1"}}`))
 		case "/users/u-1/balance":
 			_, _ = w.Write([]byte(`{"success":true,"data":{"balance":2500000}}`))
 		default:
@@ -108,7 +109,7 @@ func TestFetchClinePassUsageReadsADataEnvelopeWithoutSuccessFlag(t *testing.T) {
 		case "/users/me/plan/usage-limits":
 			_, _ = w.Write([]byte(`{"data":{"limits":[{"type":"five_hour","percentUsed":10}]}}`))
 		case "/users/me/plan":
-			_, _ = w.Write([]byte(`{"data":{"entitlements":{"cline_pass":{"enabled":true}}}}`))
+			_, _ = w.Write([]byte(`{"data":{"plan":{"entitlements":{"cline_pass":{"enabled":true}}}}}`))
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
