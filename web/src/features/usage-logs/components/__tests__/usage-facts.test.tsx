@@ -67,7 +67,8 @@ function makeLog(other: LogOtherData): UsageLog {
 function renderDetails(
   other: LogOtherData,
   promptTokens = 0,
-  isAdmin = false
+  isAdmin = false,
+  modelName?: string
 ): QueryClient {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -83,7 +84,11 @@ function renderDetails(
   render(
     <QueryClientProvider client={queryClient}>
       <DetailsDialog
-        log={{ ...makeLog(other), prompt_tokens: promptTokens }}
+        log={{
+          ...makeLog(other),
+          prompt_tokens: promptTokens,
+          ...(modelName ? { model_name: modelName } : {}),
+        }}
         isAdmin={isAdmin}
         isRoot={false}
         open
@@ -246,4 +251,26 @@ describe('usage facts billing details', () => {
     expect(screen.queryByText('seconds')).toBeNull()
     expect(screen.getByText('Total Cost')).toBeInTheDocument()
   })
+})
+
+test('states the vendor hours instead of generated tier conditions', () => {
+  const queryClient = renderDetails(
+    {
+      billing_mode: 'tiered_expr',
+      expr_b64: btoa(
+        '(weekday("Asia/Shanghai") >= 1 && hour("Asia/Shanghai") < 12) ? tier("peak", p * 0.09 + c * 0.36) : tier("off_peak", p * 0.045 + c * 0.18)'
+      ),
+      matched_tier: 'off_peak',
+      cache_tokens: 0,
+    },
+    100,
+    false,
+    'deepseek-v4.1-flash'
+  )
+
+  expect(
+    screen.getByText(/^The off-peak price is half of the peak price\./)
+  ).toBeVisible()
+  expect(screen.queryByText('Tiered price table')).not.toBeInTheDocument()
+  queryClient.clear()
 })
