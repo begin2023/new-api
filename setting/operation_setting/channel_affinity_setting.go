@@ -157,8 +157,11 @@ var channelAffinitySetting = ChannelAffinitySetting{
 			// the pool on every request. "prefer" and not "strict": an account that
 			// runs out of window hands the key on instead of failing the request.
 			// Last in the list, so the session rules above keep their own traffic.
+			// The pool publishes one model name per vendor family, so the rule is
+			// scoped to it: a key that also calls other providers keeps its own
+			// routing there, and those calls do not record a rule match.
 			Name:              "clinepass per api key",
-			ModelRegex:        []string{".*"},
+			ModelRegex:        []string{"^deepseek-.*$"},
 			KeySources:        []ChannelAffinityKeySource{{Type: "context_int", Key: "token_id"}},
 			TTLSeconds:        604800,
 			SessionMode:       "prefer",

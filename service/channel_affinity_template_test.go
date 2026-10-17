@@ -496,11 +496,13 @@ func TestDefaultRulesKeepOneKeyOnOneAccount(t *testing.T) {
 	require.True(t, found)
 	require.Equal(t, 4242, channelID)
 
-	// Another model of the same subscription goes to the same account, and
-	// another group is a different pool.
-	channelID, found = GetPreferredChannelByAffinity(ctx, "glm-5.3", "default")
+	// Another model of the same pool goes to the same account; a model outside
+	// the pool keeps its own routing, and another group is a different pool.
+	channelID, found = GetPreferredChannelByAffinity(ctx, "deepseek-v4.1-pro", "default")
 	require.True(t, found)
 	require.Equal(t, 4242, channelID)
+	_, found = GetPreferredChannelByAffinity(ctx, "glm-5.3", "default")
+	require.False(t, found)
 	_, found = GetPreferredChannelByAffinity(ctx, "deepseek-v4.1-flash", "premium")
 	require.False(t, found)
 }
