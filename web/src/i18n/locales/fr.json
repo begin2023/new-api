@@ -7344,6 +7344,10 @@
     "Input Tokens (cache miss)": "Jetons d’entrée (échec de cache)",
     "Input Tokens (cache hit)": "Jetons d’entrée (succès de cache)",
     "Cache hit": "Succès de cache",
-    "Cache miss": "Échec de cache"
+    "Cache miss": "Échec de cache",
+    "Request Content": "Contenu de la requête",
+    "Request content is not recorded": "Le contenu des requêtes n'est pas enregistré",
+    "No request content found for this request": "Aucun contenu trouvé pour cette requête",
+    "Show request content": "Afficher le contenu de la requête"
   }
 }

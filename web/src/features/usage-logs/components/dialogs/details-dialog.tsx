@@ -95,6 +95,7 @@ import { USAGE_BILLING_PATH, type LogOtherData } from '../../types'
 import { ResponseModelDetails } from '../model-badge'
 import { PluginAuthorLink } from '../plugin-author-link'
 import { DetailRow, DetailSection } from './log-detail-layout'
+import { RequestContentSection } from './request-content-section'
 
 // Maps a channel-update changed-field token (as recorded by the backend audit)
 // to its i18n label key for display in the audit details.
@@ -1242,6 +1243,11 @@ export function DetailsDialog(props: DetailsDialogProps) {
               }
             />
           )}
+
+        {/* The archived client request body, for tracing what a user sent */}
+        {isConsume && props.isAdmin && !!props.log.request_id && (
+          <RequestContentSection requestId={props.log.request_id} />
+        )}
 
         {/* Stream status details */}
         {other?.stream_status && other.stream_status.status !== 'ok' && (

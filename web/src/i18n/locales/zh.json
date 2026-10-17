@@ -7344,6 +7344,10 @@
     "Input Tokens (cache miss)": "输入 Token（缓存未命中）",
     "Input Tokens (cache hit)": "输入 Token（缓存命中）",
     "Cache hit": "缓存命中",
-    "Cache miss": "缓存未命中"
+    "Cache miss": "缓存未命中",
+    "Request Content": "请求内容",
+    "Request content is not recorded": "未开启请求内容记录",
+    "No request content found for this request": "未找到该请求的内容",
+    "Show request content": "查看请求内容"
   }
 }

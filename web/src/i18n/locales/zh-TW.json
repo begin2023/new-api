@@ -7344,6 +7344,10 @@
     "Input Tokens (cache miss)": "輸入 Token（快取未命中）",
     "Input Tokens (cache hit)": "輸入 Token（快取命中）",
     "Cache hit": "快取命中",
-    "Cache miss": "快取未命中"
+    "Cache miss": "快取未命中",
+    "Request Content": "請求內容",
+    "Request content is not recorded": "未開啟請求內容記錄",
+    "No request content found for this request": "未找到該請求的內容",
+    "Show request content": "查看請求內容"
   }
 }

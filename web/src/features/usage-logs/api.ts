@@ -181,3 +181,17 @@ export async function getTaskArtifacts(taskId: string) {
   )
   return parseTaskArtifactsResponse(response.data)
 }
+
+// ============================================================================
+// Request Archive API
+// ============================================================================
+
+// getLogRequestContent returns the archived client request body of one log row.
+// The server keeps the archive only when an operator enables it, so a missing
+// entry is reported by the server rather than as a transport failure.
+export async function getLogRequestContent(requestId: string): Promise<string> {
+  const response = await api.get<{ data?: { content?: string } }>(
+    `/api/log/request/${encodeURIComponent(requestId)}`
+  )
+  return response.data?.data?.content ?? ''
+}

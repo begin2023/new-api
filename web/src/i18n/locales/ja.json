@@ -7344,6 +7344,10 @@
     "Input Tokens (cache miss)": "入力トークン（キャッシュ未命中）",
     "Input Tokens (cache hit)": "入力トークン（キャッシュ命中）",
     "Cache hit": "キャッシュ命中",
-    "Cache miss": "キャッシュ未命中"
+    "Cache miss": "キャッシュ未命中",
+    "Request Content": "リクエスト内容",
+    "Request content is not recorded": "リクエスト内容は記録されていません",
+    "No request content found for this request": "このリクエストの内容は見つかりません",
+    "Show request content": "リクエスト内容を表示"
   }
 }

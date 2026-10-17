@@ -89,6 +89,10 @@ func InitEnv() {
 	DebugEnabled = os.Getenv("DEBUG") == "true"
 	MemoryCacheEnabled = os.Getenv("MEMORY_CACHE_ENABLED") == "true"
 	IsMasterNode = os.Getenv("NODE_TYPE") != "slave"
+	RequestLogEnabled = GetEnvOrDefaultBool("REQUEST_LOG_ENABLED", false)
+	RequestLogDir = GetEnvOrDefaultString("REQUEST_LOG_DIR", "./request-logs")
+	RequestLogRetentionDays = GetEnvOrDefault("REQUEST_LOG_RETENTION_DAYS", 7)
+	RequestLogMaxBytes = int64(GetEnvOrDefault("REQUEST_LOG_MAX_KB", 2048)) * 1024
 	PasswordLoginEncryptionEnabled = GetEnvOrDefaultBool("PASSWORD_LOGIN_ENCRYPTION_ENABLED", false)
 	initNodeNameIdentity()
 	TLSInsecureSkipVerify = GetEnvOrDefaultBool("TLS_INSECURE_SKIP_VERIFY", false)

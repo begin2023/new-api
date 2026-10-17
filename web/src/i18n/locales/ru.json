@@ -7344,6 +7344,10 @@
     "Input Tokens (cache miss)": "Токены ввода (промах кэша)",
     "Input Tokens (cache hit)": "Токены ввода (попадание в кэш)",
     "Cache hit": "Попадание в кэш",
-    "Cache miss": "Промах кэша"
+    "Cache miss": "Промах кэша",
+    "Request Content": "Содержимое запроса",
+    "Request content is not recorded": "Содержимое запросов не записывается",
+    "No request content found for this request": "Содержимое этого запроса не найдено",
+    "Show request content": "Показать содержимое запроса"
   }
 }

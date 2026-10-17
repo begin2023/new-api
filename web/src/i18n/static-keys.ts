@@ -904,4 +904,5 @@ export const STATIC_I18N_KEYS = [
   'Verification method',
   'Admin permissions updated',
   'Provider ID',
+  'Request content is not recorded',
 ] as const

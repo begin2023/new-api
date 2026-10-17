@@ -136,6 +136,10 @@ func main() {
 	// are read often. CLINEPASS_USAGE_REFRESH_MINUTES=0 turns the task off.
 	go service.StartClinePassUsageRefreshTask(common.GetEnvOrDefault("CLINEPASS_USAGE_REFRESH_MINUTES", 5))
 
+	// The request archive is pruned by age while the process runs; nothing else
+	// removes it. It only starts when REQUEST_LOG_ENABLED is set.
+	go common.StartRequestLogCleanup()
+
 	// Subscription quota reset task (daily/weekly/monthly/custom)
 	service.StartSubscriptionQuotaResetTask()
 

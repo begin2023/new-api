@@ -18,12 +18,21 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import i18next from 'i18next'
-import { afterEach, beforeAll, describe, expect, test } from 'vitest'
+import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
 
+import { getLogRequestContent } from '../../api'
 import type { UsageLog } from '../../data/schema'
 import type { LogOtherData } from '../../types'
 import { DetailsDialog } from '../dialogs/details-dialog'
+
+vi.mock('../../api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api')>()),
+  getLogRequestContent: vi.fn(),
+}))
+
+const getLogRequestContentMock = vi.mocked(getLogRequestContent)
 
 const i18nKeys = {
   'Log Details': 'Log Details',
@@ -128,6 +137,34 @@ test('hides the upstream model identity from the log owner', () => {
   const queryClient = renderDetails(responseModelOther)
   expect(screen.queryByText('Response Model')).not.toBeInTheDocument()
   expect(screen.queryByText(/unexpected-model/)).not.toBeInTheDocument()
+  queryClient.clear()
+})
+
+// The request archive holds what the user sent, so it is an operator tool: an
+// administrator can read it, the log owner cannot, and it is fetched only when
+// asked for.
+test('shows the archived request body to an administrator on request', async () => {
+  getLogRequestContentMock.mockReset()
+  getLogRequestContentMock.mockResolvedValue('{"model":"deepseek-v4.1-flash"}')
+  const user = userEvent.setup()
+  const queryClient = renderDetails({}, 0, true)
+
+  expect(getLogRequestContentMock).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Show request content' }))
+
+  expect(await screen.findByText(/deepseek-v4\.1-flash/)).toBeVisible()
+  expect(getLogRequestContentMock).toHaveBeenCalledWith('req-1')
+  queryClient.clear()
+})
+
+test('keeps the archived request body from the log owner', () => {
+  getLogRequestContentMock.mockReset()
+  const queryClient = renderDetails({})
+
+  expect(
+    screen.queryByRole('button', { name: 'Show request content' })
+  ).not.toBeInTheDocument()
+  expect(getLogRequestContentMock).not.toHaveBeenCalled()
   queryClient.clear()
 })
 

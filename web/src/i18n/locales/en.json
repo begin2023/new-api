@@ -7344,6 +7344,10 @@
     "Input Tokens (cache miss)": "Input Tokens (cache miss)",
     "Input Tokens (cache hit)": "Input Tokens (cache hit)",
     "Cache hit": "Cache hit",
-    "Cache miss": "Cache miss"
+    "Cache miss": "Cache miss",
+    "Request Content": "Request Content",
+    "Request content is not recorded": "Request content is not recorded",
+    "No request content found for this request": "No request content found for this request",
+    "Show request content": "Show request content"
   }
 }

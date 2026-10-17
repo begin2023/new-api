@@ -123,11 +123,30 @@ func Distribute() func(c *gin.Context) {
 		}
 		common.SetContextKey(c, constant.ContextKeyRequestStartTime, time.Now())
 		SetupContextForSelectedChannel(c, channel, modelRequest.Model)
+		archiveRequestLog(c)
 		c.Next()
 		if channel != nil && c.Writer != nil && c.Writer.Status() < http.StatusBadRequest {
 			service.RecordChannelAffinity(c, channel.Id)
 		}
 	}
+}
+
+// archiveRequestLog keeps the client request body under its request id so an
+// operator can look up what a user sent. It runs before the relay so a request
+// that fails, times out, or is cancelled is archived too.
+func archiveRequestLog(c *gin.Context) {
+	if !common.RequestLogEnabled {
+		return
+	}
+	requestId := c.GetString(common.RequestIdKey)
+	if requestId == "" {
+		return
+	}
+	storage, err := common.GetBodyStorage(c)
+	if err != nil {
+		return
+	}
+	common.SaveRequestLog(requestId, storage)
 }
 
 // noAvailableChannelMessage explains a 503 for a task-plugin-claimed model.

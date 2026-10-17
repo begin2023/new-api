@@ -179,6 +179,25 @@ func SearchUserLogs(c *gin.Context) {
 	common.ApiErrorT(c, "This API is deprecated")
 }
 
+// GetLogRequestContent returns the archived client request body of one request
+// id for administrators. The archive is off unless REQUEST_LOG_ENABLED is set.
+func GetLogRequestContent(c *gin.Context) {
+	if !common.RequestLogEnabled {
+		common.ApiErrorT(c, "Request content is not recorded")
+		return
+	}
+	requestId := c.Param("request_id")
+	content, err := common.ReadRequestLog(requestId)
+	if err != nil {
+		common.ApiErrorT(c, "No request content found for this request")
+		return
+	}
+	common.ApiSuccess(c, gin.H{
+		"request_id": requestId,
+		"content":    content,
+	})
+}
+
 func GetLogByKey(c *gin.Context) {
 	tokenId := c.GetInt("token_id")
 	if tokenId == 0 {

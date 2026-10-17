@@ -7344,6 +7344,10 @@
     "Input Tokens (cache miss)": "Token đầu vào (trượt cache)",
     "Input Tokens (cache hit)": "Token đầu vào (trúng cache)",
     "Cache hit": "Trúng cache",
-    "Cache miss": "Trượt cache"
+    "Cache miss": "Trượt cache",
+    "Request Content": "Nội dung yêu cầu",
+    "Request content is not recorded": "Nội dung yêu cầu không được ghi lại",
+    "No request content found for this request": "Không tìm thấy nội dung cho yêu cầu này",
+    "Show request content": "Xem nội dung yêu cầu"
   }
 }
