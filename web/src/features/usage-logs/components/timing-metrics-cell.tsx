@@ -16,7 +16,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { CircleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -24,17 +23,10 @@ import {
   textColorMap,
   type StatusVariant,
 } from '@/components/status-badge'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { formatUseTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 import { getFirstResponseTimeColor, getResponseTimeColor } from '../lib/format'
-import type { LogOtherData } from '../types'
 
 /**
  * Softened fills for the full-height timing bar. The bar sits directly beside
@@ -153,68 +145,6 @@ export function TimingMetricsCell(props: TimingMetricsCellProps) {
         )}
       </span>
       {labels}
-    </div>
-  )
-}
-
-interface StreamTpsCellProps {
-  isStream: boolean
-  compact?: boolean
-  /** Task logs are asynchronous jobs; stream vs non-stream does not apply. */
-  isTask?: boolean
-  /** The task request returned its result inline, so it is a synchronous call. */
-  isSyncTask?: boolean
-  streamStatus?: LogOtherData['stream_status']
-  className?: string
-}
-
-export function StreamTpsCell(props: StreamTpsCellProps) {
-  const { t } = useTranslation()
-  const showStreamError =
-    props.isStream && props.streamStatus && props.streamStatus.status !== 'ok'
-  let streamLabel = props.isStream ? t('Stream') : t('Non-stream')
-  if (props.isTask) {
-    streamLabel = props.isSyncTask ? t('Sync') : t('Async')
-  }
-
-  return (
-    <div
-      className={cn(
-        'flex shrink-0 flex-col items-start justify-center gap-0.5 text-xs leading-tight',
-        props.compact && 'flex-row flex-wrap items-center gap-1.5',
-        props.className
-      )}
-    >
-      <span
-        className={cn(
-          'inline-flex items-center gap-1 font-medium',
-          props.isStream ? 'text-info' : 'text-muted-foreground'
-        )}
-      >
-        {streamLabel}
-        {showStreamError && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger
-                render={<CircleAlert className='text-destructive size-3' />}
-              />
-              <TooltipContent>
-                <div className='space-y-0.5 text-xs'>
-                  <p>
-                    {t('Stream Status')}: {t('Error')}
-                  </p>
-                  <p>{props.streamStatus?.end_reason || 'unknown'}</p>
-                  {(props.streamStatus?.error_count ?? 0) > 0 && (
-                    <p>
-                      {t('Soft Errors')}: {props.streamStatus?.error_count}
-                    </p>
-                  )}
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
-      </span>
     </div>
   )
 }

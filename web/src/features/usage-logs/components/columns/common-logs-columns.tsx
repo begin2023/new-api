@@ -76,7 +76,7 @@ import type { LogOtherData } from '../../types'
 import { DetailsDialog } from '../dialogs/details-dialog'
 import { LogCostDisplay } from '../log-cost-display'
 import { ModelBadge } from '../model-badge'
-import { TimingMetricsCell, StreamTpsCell } from '../timing-metrics-cell'
+import { TimingMetricsCell } from '../timing-metrics-cell'
 import { useUsageLogsContext } from '../usage-logs-provider'
 
 interface DetailSegment {
@@ -689,26 +689,6 @@ export function useCommonLogsColumns(
           )
         },
         meta: { mobileTitle: true },
-      },
-      {
-        accessorKey: 'is_stream',
-        header: t('Stream'),
-        cell: ({ row }) => {
-          const log = row.original
-          if (!isTimingLogType(log.type)) return null
-
-          const other = parseLogOther(log.other)
-
-          return (
-            <StreamTpsCell
-              isStream={log.is_stream}
-              isTask={other?.is_task === true}
-              isSyncTask={other?.task_sync === true}
-              streamStatus={other?.stream_status}
-            />
-          )
-        },
-        meta: { label: t('Stream') },
       },
       {
         accessorKey: 'prompt_tokens',

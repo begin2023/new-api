@@ -39,7 +39,7 @@ import {
   isTimingLogType,
 } from '../lib/utils'
 import { ModelBadge, ResponseModelDetails } from './model-badge'
-import { StreamTpsCell, TimingMetricsCell } from './timing-metrics-cell'
+import { TimingMetricsCell } from './timing-metrics-cell'
 import { useUsageLogsContext } from './usage-logs-provider'
 
 type FieldName =
@@ -185,32 +185,19 @@ export function CommonLogMobileCard<TData>(props: {
             </Button>
           </div>
         )}
-        {timing &&
-          (props.cells.has('use_time') || props.cells.has('is_stream')) && (
-            <div className='col-start-2 flex min-w-0 flex-col items-end gap-1 [overflow-wrap:anywhere]'>
-              {props.cells.has('is_stream') && (
-                <StreamTpsCell
-                  compact
-                  className='min-h-5 max-w-full min-w-0 justify-end'
-                  isStream={log.is_stream}
-                  isTask={other?.is_task === true}
-                  isSyncTask={other?.task_sync === true}
-                  streamStatus={other?.stream_status}
-                />
-              )}
-              {props.cells.has('use_time') && (
-                <TimingMetricsCell
-                  useTimeSec={log.use_time}
-                  completionTokens={log.completion_tokens}
-                  frtMs={other?.frt}
-                  isStream={log.is_stream}
-                  indicator='dot'
-                  compact
-                  className='min-h-6 max-w-full min-w-0 items-center justify-end [&>div]:justify-end'
-                />
-              )}
-            </div>
-          )}
+        {timing && props.cells.has('use_time') && (
+          <div className='col-start-2 flex min-w-0 flex-col items-end gap-1 [overflow-wrap:anywhere]'>
+            <TimingMetricsCell
+              useTimeSec={log.use_time}
+              completionTokens={log.completion_tokens}
+              frtMs={other?.frt}
+              isStream={log.is_stream}
+              indicator='dot'
+              compact
+              className='min-h-6 max-w-full min-w-0 items-center justify-end [&>div]:justify-end'
+            />
+          </div>
+        )}
       </div>
       {visibleMetadata.length > 0 && (
         <div className='grid min-w-0 grid-cols-2 gap-x-4 gap-y-0.5'>
