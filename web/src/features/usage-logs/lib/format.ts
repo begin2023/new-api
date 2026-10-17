@@ -224,14 +224,23 @@ export function getThroughputColor(
 }
 
 /**
- * Get response color using throughput only when enough output tokens exist.
+ * Get response color using decode speed only when enough output tokens exist.
+ *
+ * The speed is the output over the time spent writing it: the wait for the
+ * first token is prompt processing, so counting it reads a model that thought
+ * for 16 s before writing 550 tokens as slow. Without a first-token time (a
+ * non-stream reply writes everything at the end) the whole call is used.
  */
 export function getResponseTimeColor(
   seconds: number,
-  completionTokens: number
+  completionTokens: number,
+  firstTokenSeconds?: number
 ): 'success' | 'warning' | 'danger' {
   if (completionTokens < 100 || seconds <= 0) return getTimeColor(seconds)
-  return getThroughputColor(completionTokens / seconds)
+  const decodeSeconds =
+    firstTokenSeconds != null ? seconds - firstTokenSeconds : seconds
+  if (decodeSeconds <= 0) return getTimeColor(seconds)
+  return getThroughputColor(completionTokens / decodeSeconds)
 }
 
 /**

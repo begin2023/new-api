@@ -78,7 +78,8 @@ export function TimingMetricsCell(props: TimingMetricsCellProps) {
       : getFirstResponseTimeColor(firstTokenSeconds)
   const totalTimeVariant = getResponseTimeColor(
     props.useTimeSec,
-    props.completionTokens
+    props.completionTokens,
+    firstTokenSeconds ?? undefined
   )
   const firstTokenLabel =
     firstTokenSeconds == null ? t('N/A') : formatUseTime(firstTokenSeconds)
@@ -163,7 +164,6 @@ interface StreamTpsCellProps {
   isTask?: boolean
   /** The task request returned its result inline, so it is a synchronous call. */
   isSyncTask?: boolean
-  tokensPerSecond?: number | null
   streamStatus?: LogOtherData['stream_status']
   className?: string
 }
@@ -172,10 +172,6 @@ export function StreamTpsCell(props: StreamTpsCellProps) {
   const { t } = useTranslation()
   const showStreamError =
     props.isStream && props.streamStatus && props.streamStatus.status !== 'ok'
-  const tpsLabel =
-    props.tokensPerSecond != null
-      ? `${Math.round(props.tokensPerSecond)} t/s`
-      : '—'
   let streamLabel = props.isStream ? t('Stream') : t('Non-stream')
   if (props.isTask) {
     streamLabel = props.isSyncTask ? t('Sync') : t('Async')
@@ -219,12 +215,6 @@ export function StreamTpsCell(props: StreamTpsCellProps) {
           </TooltipProvider>
         )}
       </span>
-      {(!props.compact ||
-        (props.isStream && props.tokensPerSecond != null)) && (
-        <span className='text-muted-foreground/60 px-0.5 tabular-nums'>
-          {tpsLabel}
-        </span>
-      )}
     </div>
   )
 }

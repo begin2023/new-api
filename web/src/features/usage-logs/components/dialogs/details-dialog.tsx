@@ -737,7 +737,10 @@ export function DetailsDialog(props: DetailsDialogProps) {
                     timingTextColorClass(
                       getResponseTimeColor(
                         props.log.use_time,
-                        props.log.completion_tokens
+                        props.log.completion_tokens,
+                        other?.frt != null && other.frt > 0
+                          ? other.frt / 1000
+                          : undefined
                       )
                     )
                   )}
