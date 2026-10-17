@@ -32,6 +32,13 @@ import { useSidebarData } from './use-sidebar-data'
 const ROOT_VIEW_KEY = '__root'
 
 /**
+ * Groups only administrators see. `chat` publishes the in-panel playground and
+ * the chat presets, which the operator does not offer to plain users; their
+ * routes redirect for the same reason.
+ */
+const ADMIN_ONLY_GROUP_IDS = new Set(['admin', 'chat'])
+
+/**
  * Resolve the active sidebar view for the current location.
  *
  * - Returns the matching nested {@link SidebarView} (with its nav
@@ -55,7 +62,7 @@ export function useSidebarView(): ResolvedSidebarView {
     const role = userRole ?? ROLE.GUEST
     const isAdmin = role >= ROLE.ADMIN
     return configFilteredRoot
-      .filter((group) => (group.id === 'admin' ? isAdmin : true))
+      .filter((group) => isAdmin || !ADMIN_ONLY_GROUP_IDS.has(group.id ?? ''))
       .map((group) => {
         const items = group.items.filter(
           (item) => item.requiredRole === undefined || role >= item.requiredRole

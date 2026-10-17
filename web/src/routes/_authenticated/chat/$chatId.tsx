@@ -29,10 +29,18 @@ import {
   chatLinkRequiresApiKey,
   resolveChatUrl,
 } from '@/features/chat/lib/chat-links'
+import { isSidebarModuleEnabled } from '@/lib/nav-modules'
+import { ROLE } from '@/lib/roles'
+import { useAuthStore } from '@/stores/auth-store'
 
 export const Route = createFileRoute('/_authenticated/chat/$chatId')({
   loader: async ({ params }) => {
-    if (!Number.isInteger(Number(params.chatId))) {
+    const role = useAuthStore.getState().auth.user?.role ?? ROLE.GUEST
+    if (
+      role < ROLE.ADMIN ||
+      !isSidebarModuleEnabled('chat', 'chat') ||
+      !Number.isInteger(Number(params.chatId))
+    ) {
       throw redirect({ to: '/dashboard' })
     }
   },

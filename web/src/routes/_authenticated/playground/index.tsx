@@ -21,10 +21,13 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 import { Main } from '@/components/layout'
 import { Playground } from '@/features/playground'
 import { isSidebarModuleEnabled } from '@/lib/nav-modules'
+import { ROLE } from '@/lib/roles'
+import { useAuthStore } from '@/stores/auth-store'
 
 export const Route = createFileRoute('/_authenticated/playground/')({
   beforeLoad: () => {
-    if (!isSidebarModuleEnabled('chat', 'playground')) {
+    const role = useAuthStore.getState().auth.user?.role ?? ROLE.GUEST
+    if (role < ROLE.ADMIN || !isSidebarModuleEnabled('chat', 'playground')) {
       throw redirect({ to: '/dashboard' })
     }
   },
